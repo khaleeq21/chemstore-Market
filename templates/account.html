@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Your account - {{ store_name }}{% endblock %}
+
+{% block body %}
+<a id="top"></a>
+{% include "partials/store_header.html" %}
+
+<main class="store-shell shop-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="flash {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}">
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+    {% endwith %}
+
+    <nav class="store-breadcrumb shop-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <span>Your account</span>
+    </nav>
+
+    <div class="shop-account-hero">
+        <div class="shop-avatar">{{ account_user.username[:1].upper() }}</div>
+        <div>
+            <p class="eyebrow">Your account</p>
+            <h1>Hello, {{ account_user.username }}</h1>
+            <p>{{ account_user.email }}{% if account_user.role %} &middot; {{ 'Customer' if account_user.role == 'User' else account_user.role }}{% endif %}</p>
+        </div>
+        <a href="/profile" class="btn btn-soft">Profile settings</a>
+    </div>
+
+    <div class="shop-account-layout">
+        <aside class="shop-account-nav">
+            <a href="/account" class="is-active">Account overview</a>
+            <a href="/orders">Your orders</a>
+            <a href="/wishlist">Your wishlist</a>
+            <a href="/seller/listings">My seller listings</a>
+            <a href="/sell">Sell an item</a>
+            <a href="/profile">Profile and security</a>
+            <a href="/contact">Contact support</a>
+            {% if session.get('role') in ('Developer', 'Admin') %}<a href="/admin">Staff dashboard</a>{% endif %}
+        </aside>
+
+        <div class="shop-account-content">
+            <div class="shop-account-stats">
+                <a href="/orders" class="shop-stat-card">
+                    <span>Orders placed</span>
+                    <strong>{{ order_count }}</strong>
+                    <small>View order history</small>
+                </a>
+                <a href="/wishlist" class="shop-stat-card">
+                    <span>Wishlist items</span>
+                    <strong>{{ wishlist_count }}</strong>
+                    <small>Products you saved</small>
+                </a>
+                <div class="shop-stat-card">
+                    <span>Reviews written</span>
+                    <strong>{{ review_count }}</strong>
+                    <small>Help other customers</small>
+                </div>
+            </div>
+
+            <section class="shop-account-panel">
+                <div class="shop-section-heading">
+                    <div>
+                        <p class="eyebrow">Recent activity</p>
+                        <h2>Your latest orders</h2>
+                    </div>
+                    <a href="/orders" class="shop-text-link">View all orders</a>
+                </div>
+                {% if recent_orders %}
+                <div class="shop-order-list">
+                    {% for order in recent_orders %}
+                    <article class="shop-order-card">
+                        <div class="shop-order-main">
+                            <div>
+                                <p class="order-number">Order #{{ order.id }}</p>
+                                <p class="order-date">{{ order.created_at }}</p>
+                            </div>
+                            <div class="order-badges">
+                                <span class="order-status status-{{ order.status }}">{{ order.status|capitalize }}</span>
+                                <span class="order-status {% if order.payment_status == 'paid' %}status-completed{% else %}status-pending{% endif %}">{{ order.payment_status|capitalize }}</span>
+                            </div>
+                            <div class="order-total">
+                                <strong>{{ order.total_cents|money }}</strong>
+                                <a href="/orders/{{ order.id }}" class="btn btn-soft btn-sm">View order</a>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="shop-empty shop-empty-inline">
+                    <h3>No orders yet</h3>
+                    <p>When you place an order, its progress will show here.</p>
+                    <a href="/" class="btn btn-primary btn-sm">Start shopping</a>
+                </div>
+                {% endif %}
+            </section>
+
+            <section class="shop-account-panel">
+                <div class="shop-section-heading">
+                    <div>
+                        <p class="eyebrow">Saved products</p>
+                        <h2>From your wishlist</h2>
+                    </div>
+                    <a href="/wishlist" class="shop-text-link">View wishlist</a>
+                </div>
+                {% if wishlist_items %}
+                <div class="product-grid shop-product-grid shop-product-grid-compact">
+                    {% for item in wishlist_items %}
+                    {% set product = item %}
+                    {% include "partials/product_card.html" %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="shop-empty shop-empty-inline">
+                    <h3>Your wishlist is empty</h3>
+                    <p>Save products you are considering and find them here later.</p>
+                    <a href="/" class="btn btn-primary btn-sm">Browse products</a>
+                </div>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+</main>
+
+{% include "partials/store_footer.html" %}
+{% endblock %}

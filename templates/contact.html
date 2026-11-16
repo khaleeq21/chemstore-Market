@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Contact us - {{ store_name }}{% endblock %}
+
+{% block body %}
+<a id="top"></a>
+{% include "partials/store_header.html" %}
+
+<main class="store-shell shop-shell">
+    <nav class="store-breadcrumb shop-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <span>Contact us</span>
+    </nav>
+
+    <div class="shop-contact-layout">
+        <section class="shop-contact-copy">
+            <p class="eyebrow">Customer support</p>
+            <h1>How can we help?</h1>
+            <p>Questions about a product, an order, or bulk supply? Send us a message and our team will reply by email.</p>
+            <div class="shop-contact-cards">
+                <div>
+                    <h2>Email support</h2>
+                    <a href="mailto:{{ support_email }}">{{ support_email }}</a>
+                    <p>We usually reply within one business day.</p>
+                </div>
+                <div>
+                    <h2>Order help</h2>
+                    <p>Include your order number so we can help faster.</p>
+                    <a href="/orders" class="shop-text-link">View your orders</a>
+                </div>
+                <div>
+                    <h2>Before you order</h2>
+                    <p>Check shipping, returns, and safe handling information.</p>
+                    <a href="/info/help" class="shop-text-link">Visit the help centre</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="shop-contact-form-card">
+            <h2>Send a message</h2>
+            {% if error %}
+            <div class="flash flash-error"><span>{{ error }}</span></div>
+            {% endif %}
+            {% if success %}
+            <div class="flash flash-success"><span>{{ success }}</span></div>
+            {% endif %}
+            <form action="/contact" method="POST" class="shop-contact-form">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label class="field-label" for="contactName">Your name</label>
+                        <input type="text" id="contactName" name="name" value="{{ values.name }}" required autocomplete="name">
+                    </div>
+                    <div class="form-field">
+                        <label class="field-label" for="contactEmail">Email address</label>
+                        <input type="email" id="contactEmail" name="email" value="{{ values.email }}" required autocomplete="email">
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="contactSubject">Subject (optional)</label>
+                    <input type="text" id="contactSubject" name="subject" value="{{ values.subject }}" placeholder="Product question, order help, bulk enquiry">
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="contactMessage">Message</label>
+                    <textarea id="contactMessage" name="message" rows="7" required placeholder="Tell us what you need help with">{{ values.message }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-full justify-center">Send message</button>
+                <p class="summary-note">By sending this message you agree to our <a href="/info/privacy">privacy notice</a>.</p>
+            </form>
+        </section>
+    </div>
+</main>
+
+{% include "partials/store_footer.html" %}
+{% endblock %}

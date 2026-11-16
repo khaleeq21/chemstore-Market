@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Order #{{ order.id }} - {{ store_name }}{% endblock %}
+
+{% block body %}
+<a id="top"></a>
+{% include "partials/store_header.html" %}
+
+<main class="store-shell shop-shell">
+    <section class="shop-success-card {% if not paid %}is-pending{% endif %}">
+        <div class="shop-success-icon">
+            {% if paid %}
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 13 4 4L19 7"></path>
+            </svg>
+            {% else %}
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.3 4.3 3.2 17a2 2 0 0 0 1.7 3h14.2a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0Z"></path>
+            </svg>
+            {% endif %}
+        </div>
+        <p class="eyebrow">{% if paid %}Payment confirmed{% else %}Payment pending{% endif %}</p>
+        <h1>{% if paid %}Thank you for your order.{% else %}We are confirming your payment.{% endif %}</h1>
+        <p class="shop-success-copy">
+            {% if paid %}
+            Order #{{ order.id }} has been paid and is now being prepared. A confirmation has been recorded for {{ order.email }}.
+            {% else %}
+            Order #{{ order.id }} was created. Your order is pending payment on delivery. A confirmation has been recorded for {{ order.email }}.
+            {% endif %}
+        </p>
+        <div class="shop-success-actions">
+            <a href="/orders/{{ order.id }}" class="btn btn-primary">Track Order Progress</a>
+            <a href="/orders/{{ order.id }}/invoice" target="_blank" class="btn btn-soft">Print Official Invoice</a>
+            <a href="/" class="btn btn-ghost">Continue Shopping</a>
+        </div>
+    </section>
+
+    <section class="shop-order-panel shop-success-summary">
+        <h2>Order summary</h2>
+        <div class="checkout-lines">
+            {% for line in items %}
+            <div class="checkout-line shop-order-line">
+                <div>
+                    <strong>{{ line.name }}</strong>
+                    <span>{{ line.quantity|fmt_qty }} {{ line.unit }} &times; {{ line.unit_price_cents|money }}</span>
+                </div>
+                <strong>{{ line.line_total_cents|money }}</strong>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="summary-row"><span>Subtotal</span><strong>{{ order.subtotal_cents|money }}</strong></div>
+        <div class="summary-row"><span>Shipping</span><strong>{% if order.shipping_cents %}{{ order.shipping_cents|money }}{% else %}Free{% endif %}</strong></div>
+        {% if order.discount_cents %}
+        <div class="summary-row summary-discount"><span>Coupon{% if order.coupon_code %} ({{ order.coupon_code }}){% endif %}</span><strong>&minus;{{ order.discount_cents|money }}</strong></div>
+        {% endif %}
+        <div class="summary-row summary-total"><span>Total</span><strong>{{ order.total_cents|money }}</strong></div>
+        <div class="order-address">
+            <strong>Shipping to</strong>
+            <span>{{ order.full_name }}</span>
+            <span>{{ order.address_line1 }}</span>
+            {% if order.address_line2 %}<span>{{ order.address_line2 }}</span>{% endif %}
+            <span>{{ order.city }}{% if order.state %}, {{ order.state }}{% endif %} {{ order.postal_code }}</span>
+            <span>{{ order.country }}</span>
+        </div>
+    </section>
+</main>
+
+{% include "partials/store_footer.html" %}
+{% endblock %}

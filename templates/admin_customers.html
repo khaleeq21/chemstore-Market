@@ -1,0 +1,57 @@
+{% extends "admin_base.html" %}
+
+{% block admin_title %}Customers{% endblock %}
+
+{% block admin_body %}
+<div class="admin-page-head">
+    <div>
+        <p class="eyebrow">People</p>
+        <h1>Customers</h1>
+        <p>Customer accounts and staff members registered on the store.</p>
+    </div>
+    <a href="/admin/orders" class="btn btn-ghost btn-sm">View orders</a>
+</div>
+
+<div class="admin-card">
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Orders</th>
+                    <th>Paid spend</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>
+                        <div class="admin-person">
+                            <span class="admin-avatar">{{ user.username[:1].upper() }}</span>
+                            <span>
+                                <strong>{{ user.username }}</strong>
+                                <small>{{ user.email }}</small>
+                            </span>
+                        </div>
+                    </td>
+                    <td><span class="badge {% if user.role == 'User' %}badge-neutral{% else %}badge-accent{% endif %}">{{ 'Customer' if user.role == 'User' else user.role }}</span></td>
+                    <td>
+                        {% if user.approved %}
+                        <span class="badge badge-success">Active</span>
+                        {% else %}
+                        <span class="badge badge-warning">Pending approval</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.order_count }}</td>
+                    <td>{{ user.spend_cents|money }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="admin-empty-cell">No customer accounts found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

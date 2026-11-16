@@ -1,0 +1,99 @@
+{% extends "admin_base.html" %}
+
+{% block admin_title %}Settings{% endblock %}
+
+{% block admin_body %}
+<div class="admin-page-head">
+    <div>
+        <p class="eyebrow">Configuration</p>
+        <h1>Store settings</h1>
+        <p>Email delivery and customer support details. Environment variables take priority over saved values.</p>
+    </div>
+</div>
+
+{% if message %}
+<div class="flash flash-success"><span>{{ message }}</span></div>
+{% endif %}
+{% if error %}
+<div class="flash flash-error"><span>{{ error }}</span></div>
+{% endif %}
+
+<div class="admin-settings-layout">
+    <section class="admin-card">
+        <h2>Email delivery (SMTP)</h2>
+        <p class="admin-card-copy">Used for password reset codes, order confirmations, and shipping updates.</p>
+        <form action="/admin/settings" method="POST" class="admin-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+            <div class="form-grid">
+                <div class="form-field">
+                    <label class="field-label" for="smtpHost">SMTP host</label>
+                    <input type="text" id="smtpHost" name="smtp_host" value="{{ settings.smtp_host }}" placeholder="smtp.example.com">
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="smtpPort">SMTP port</label>
+                    <input type="number" id="smtpPort" name="smtp_port" value="{{ settings.smtp_port }}" min="1" max="65535">
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="smtpUser">SMTP username</label>
+                    <input type="text" id="smtpUser" name="smtp_user" value="{{ settings.smtp_user }}" autocomplete="off">
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="smtpPassword">SMTP password</label>
+                    <input type="password" id="smtpPassword" name="smtp_password" value="{{ settings.smtp_password }}" autocomplete="new-password">
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="smtpFrom">From address</label>
+                    <input type="email" id="smtpFrom" name="smtp_from" value="{{ settings.smtp_from }}" placeholder="orders@example.com">
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="smtpSecurity">Security</label>
+                    <select id="smtpSecurity" name="smtp_security">
+                        <option value="starttls" {% if settings.smtp_security == 'starttls' %}selected{% endif %}>STARTTLS (port 587)</option>
+                        <option value="ssl" {% if settings.smtp_security == 'ssl' %}selected{% endif %}>SSL (port 465)</option>
+                        <option value="none" {% if settings.smtp_security == 'none' %}selected{% endif %}>None</option>
+                    </select>
+                </div>
+                <div class="form-field form-field-wide">
+                    <label class="field-label" for="supportEmail">Customer support email</label>
+                    <input type="email" id="supportEmail" name="support_email" value="{{ settings.support_email }}">
+                    <p class="field-hint">Shown in the store footer, contact page, and help information.</p>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save settings</button>
+        </form>
+    </section>
+
+    <aside class="admin-settings-side">
+        <section class="admin-card">
+            <h2>Send a test email</h2>
+            <p class="admin-card-copy">Save your SMTP settings first, then send a test message.</p>
+            <form action="/admin/settings" method="POST" class="admin-form">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="action" value="test_email">
+                <div class="form-field">
+                    <label class="field-label" for="testEmail">Recipient</label>
+                    <input type="email" id="testEmail" name="test_email" required placeholder="you@example.com">
+                </div>
+                <button type="submit" class="btn btn-soft">Send test email</button>
+            </form>
+        </section>
+
+        <section class="admin-card">
+            <h2>Delivery status</h2>
+            <div class="admin-status-row">
+                <span>SMTP host</span>
+                <strong>{% if settings.smtp_host %}Configured{% else %}Not configured{% endif %}</strong>
+            </div>
+            <div class="admin-status-row">
+                <span>From address</span>
+                <strong>{{ settings.smtp_from or 'Not set' }}</strong>
+            </div>
+            <div class="admin-status-row">
+                <span>Security</span>
+                <strong>{{ settings.smtp_security|upper }}</strong>
+            </div>
+            <p class="field-hint">If email fails, password reset codes are written to the server log.</p>
+        </section>
+    </aside>
+</div>
+{% endblock %}

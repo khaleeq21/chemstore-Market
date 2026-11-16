@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Sell on ChemStore - Marketplace &amp; Surplus Auctions{% endblock %}
+
+{% block body %}
+<a id="top"></a>
+{% include "partials/store_header.html" %}
+
+<main class="store-shell shop-shell max-w-4xl mx-auto py-8">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="flash {% if category == 'success' %}flash-success{% else %}flash-error{% endif %} mb-6">
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+    {% endwith %}
+
+    <div class="shop-page-heading mb-8">
+        <div>
+            <p class="eyebrow">Seller Hub &middot; Amazon &amp; eBay Marketplace</p>
+            <h1 class="text-3xl font-extrabold text-white">Create a New Marketplace Listing</h1>
+            <p class="text-sm text-slate-400 mt-1">List chemical supplies, laboratory equipment, surplus reagents, or apparatus for sale.</p>
+        </div>
+        <a href="/seller/listings" class="btn btn-soft btn-sm text-xs">
+            Manage My Listings
+        </a>
+    </div>
+
+    <form action="/sell" method="POST" enctype="multipart/form-data" class="space-y-6">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+
+        <!-- Section 1: Item Specifics -->
+        <section class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-4">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">1</span>
+                Item Information &amp; Classification
+            </h2>
+
+            <div class="form-field form-field-wide">
+                <label class="field-label" for="itemName">Listing Title / Chemical Name *</label>
+                <input type="text" id="itemName" name="name" required placeholder="e.g. Borosilicate 3.3 Glass Erlenmeyer Flask 500mL or Acetone 99.5% 4L" 
+                       class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="form-field">
+                    <label class="field-label" for="itemCategory">Department / Category *</label>
+                    <input type="text" id="itemCategory" name="category" list="categoryList" required placeholder="e.g. Laboratory Glassware"
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                    <datalist id="categoryList">
+                        {% for cat in categories %}
+                        <option value="{{ cat.category }}"></option>
+                        {% endfor %}
+                        <option value="Solvents"></option>
+                        <option value="Acids &amp; Bases"></option>
+                        <option value="Laboratory Glassware"></option>
+                        <option value="Precision Instruments"></option>
+                        <option value="Safety &amp; Protection"></option>
+                        <option value="Reagents"></option>
+                    </datalist>
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label" for="itemBrand">Brand / Manufacturer</label>
+                    <input type="text" id="itemBrand" name="brand" placeholder="e.g. PyrexTech Labs, PureChem"
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label" for="itemCondition">Item Condition *</label>
+                    <select id="itemCondition" name="condition" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                        <option value="Brand New">Brand New (Unopened/Sealed)</option>
+                        <option value="Refurbished">Refurbished / Certified Tested</option>
+                        <option value="Used - Like New">Used - Like New</option>
+                        <option value="Used - Good">Used - Good (Fully Functional)</option>
+                        <option value="Used - Acceptable">Used - Acceptable Surplus</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Format & Pricing -->
+        <section class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-4">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">2</span>
+                Pricing & Selling Format
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                <label class="p-4 rounded-xl border border-slate-700 bg-slate-900/40 cursor-pointer hover:border-sky-500 transition-colors flex items-start gap-3">
+                    <input type="radio" name="listing_type" value="fixed" checked class="mt-1" onchange="toggleFormatFields()">
+                    <div>
+                        <strong class="text-white text-sm block">Fixed Price (Buy It Now)</strong>
+                        <span class="text-xs text-slate-400">Amazon style: Buyers purchase immediately at your stated price.</span>
+                    </div>
+                </label>
+
+                <label class="p-4 rounded-xl border border-slate-700 bg-slate-900/40 cursor-pointer hover:border-amber-500 transition-colors flex items-start gap-3">
+                    <input type="radio" name="listing_type" value="auction" class="mt-1" onchange="toggleFormatFields()">
+                    <div>
+                        <strong class="text-white text-sm block">Online Auction (Bidding)</strong>
+                        <span class="text-xs text-slate-400">eBay style: Buyers submit bids. Sells to the highest bidder.</span>
+                    </div>
+                </label>
+
+                <label class="p-4 rounded-xl border border-slate-700 bg-slate-900/40 cursor-pointer hover:border-indigo-500 transition-colors flex items-start gap-3">
+                    <input type="radio" name="listing_type" value="both" class="mt-1" onchange="toggleFormatFields()">
+                    <div>
+                        <strong class="text-white text-sm block">Auction + Buy It Now</strong>
+                        <span class="text-xs text-slate-400">Both options: Buyers can bid or buy immediately at the instant price.</span>
+                    </div>
+                </label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-2">
+                <div id="priceGroup" class="form-field">
+                    <label class="field-label" for="itemPrice">Buy It Now Price (PKR)</label>
+                    <input type="number" id="itemPrice" name="price" min="0" step="0.01" value="25.00"
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                </div>
+
+                <div id="bidGroup" class="form-field">
+                    <label class="field-label" for="itemStartingBid">Starting Bid (PKR)</label>
+                    <input type="number" id="itemStartingBid" name="starting_bid" min="0" step="0.01" value="10.00"
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                </div>
+
+                <div id="durationGroup" class="form-field">
+                    <label class="field-label" for="auctionDuration">Auction Duration</label>
+                    <select id="auctionDuration" name="duration_days" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                        <option value="1">1 Day (Quick Auction)</option>
+                        <option value="3">3 Days</option>
+                        <option value="5">5 Days</option>
+                        <option value="7" selected>7 Days (Standard)</option>
+                        <option value="10">10 Days</option>
+                        <option value="14">14 Days</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label" for="itemQty">Quantity &amp; Unit</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="itemQty" name="quantity" min="1" step="any" value="10" required
+                               class="w-20 bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                        <select name="unit" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+                            {% for u_key, u_val in units.items() %}
+                            <option value="{{ u_key }}">{{ u_val.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Media & Description -->
+        <section class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-4">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center text-xs">3</span>
+                Product Photos &amp; Description
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-field">
+                    <label class="field-label" for="imageFile">Upload Product Image (PNG, JPG, WEBP)</label>
+                    <input type="file" id="imageFile" name="image_file" accept="image/*"
+                           class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-500">
+                </div>
+
+                <div class="form-field">
+                    <label class="field-label" for="imageUrl">Or Web Image URL / Asset</label>
+                    <input type="text" id="imageUrl" name="image_url" placeholder="/static/images/beakers.svg or https://..."
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-xs">
+                </div>
+            </div>
+
+            <div class="form-field form-field-wide">
+                <label class="field-label" for="itemDesc">Item Description &amp; Technical Specifications</label>
+                <textarea id="itemDesc" name="description" rows="5" placeholder="Detail the purity assay, CAS number if applicable, manufacturer specs, what is included, packaging condition, and hazardous handling requirements..."
+                          class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white text-sm leading-relaxed"></textarea>
+            </div>
+        </section>
+
+        <div class="flex items-center justify-between pt-4">
+            <a href="/" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary btn-lg px-8 py-3 font-bold text-base shadow-lg shadow-sky-600/30">
+                Publish Listing to Marketplace &rarr;
+            </button>
+        </div>
+    </form>
+</main>
+
+<script>
+function toggleFormatFields() {
+    var format = document.querySelector('input[name="listing_type"]:checked').value;
+    var priceGroup = document.getElementById('priceGroup');
+    var bidGroup = document.getElementById('bidGroup');
+    var durationGroup = document.getElementById('durationGroup');
+
+    if (format === 'fixed') {
+        priceGroup.style.display = 'block';
+        bidGroup.style.opacity = '0.5';
+        durationGroup.style.opacity = '0.5';
+    } else if (format === 'auction') {
+        priceGroup.style.opacity = '0.5';
+        bidGroup.style.opacity = '1';
+        durationGroup.style.opacity = '1';
+    } else {
+        priceGroup.style.opacity = '1';
+        bidGroup.style.opacity = '1';
+        durationGroup.style.opacity = '1';
+    }
+}
+</script>
+
+{% include "partials/store_footer.html" %}
+{% endblock %}
+

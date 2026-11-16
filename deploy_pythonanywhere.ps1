@@ -9,6 +9,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
 $projectDir = $PSScriptRoot
 if (-not $TokenFile) {
     $TokenFile = Join-Path $projectDir 'pa_token.txt'
@@ -30,7 +31,7 @@ if (-not $DryRun) {
 }
 
 $files = @()
-foreach ($name in @('app.py', 'flask_app.py', 'wsgi.py', 'requirements.txt')) {
+foreach ($name in @('app.py', 'flask_app.py', 'wsgi.py', 'requirements.txt', 'seed_database.py', 'seed_assets.py')) {
     $path = Join-Path $projectDir $name
     if (Test-Path -LiteralPath $path) {
         $files += Get-Item -LiteralPath $path
@@ -97,7 +98,7 @@ else {
     Start-Sleep -Seconds 4
     try {
         $response = Invoke-WebRequest -UseBasicParsing "https://$domain/" -TimeoutSec 20
-        if ($response.Content -match 'ChemStore Pro') {
+        if ($response.Content -match 'ChemStore') {
             Write-Host "Deployed successfully: https://$domain"
         }
         else {

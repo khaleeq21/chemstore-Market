@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{% if admin_view %}All orders{% else %}My orders{% endif %} - {{ store_name }}{% endblock %}
+
+{% block body %}
+<a id="top"></a>
+{% include "partials/store_header.html" %}
+
+<main class="store-shell shop-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="flash {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}">
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+    {% endwith %}
+
+    <nav class="store-breadcrumb shop-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        {% if admin_view %}<a href="/admin">Dashboard</a><span>/</span>{% endif %}
+        <span>{% if admin_view %}All orders{% else %}My orders{% endif %}</span>
+    </nav>
+
+    <div class="shop-page-heading">
+        <div>
+            <p class="eyebrow">{% if admin_view %}Store management{% else %}Your account{% endif %}</p>
+            <h1>{% if admin_view %}All orders{% else %}My orders{% endif %}</h1>
+        </div>
+        {% if admin_view %}
+        <a href="/admin" class="btn btn-ghost btn-sm">Back to dashboard</a>
+        {% else %}
+        <a href="/" class="btn btn-ghost btn-sm">Continue shopping</a>
+        {% endif %}
+    </div>
+
+    {% if orders %}
+    <div class="shop-order-list">
+        {% for order in orders %}
+        <article class="shop-order-card">
+            <div class="shop-order-main">
+                <div>
+                    <p class="order-number">Order #{{ order.id }}</p>
+                    <p class="order-date">{{ order.created_at }}</p>
+                </div>
+                <div class="order-customer">
+                    <strong>{{ order.full_name }}</strong>
+                    <span>{{ order.email }}</span>
+                </div>
+                <div class="order-badges">
+                    <span class="order-status status-{{ order.status }}">{{ order.status|capitalize }}</span>
+                    <span class="order-status {% if order.payment_status == 'paid' %}status-completed{% else %}status-pending{% endif %}">{{ order.payment_status|capitalize }}</span>
+                </div>
+                <div class="order-total">
+                    <strong>{{ order.total_cents|money }}</strong>
+                    <a href="/orders/{{ order.id }}" class="btn btn-soft btn-sm">View order</a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="store-empty shop-empty">
+        <h3>No orders yet</h3>
+        <p>{% if admin_view %}Customer orders will appear here after checkout.{% else %}Your completed orders will appear here after checkout.{% endif %}</p>
+        <a href="/" class="btn btn-primary">Browse products</a>
+    </div>
+    {% endif %}
+</main>
+
+{% include "partials/store_footer.html" %}
+{% endblock %}

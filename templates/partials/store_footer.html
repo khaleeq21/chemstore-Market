@@ -1,0 +1,53 @@
+<footer class="shop-footer">
+    <a href="#top" class="shop-back-top">Back to top</a>
+    <div class="shop-footer-grid">
+        <div>
+            <h2>Get to know us</h2>
+            <a href="/info/about">About {{ store_name }}</a>
+            <a href="/info/help">Help centre</a>
+            <a href="/contact">Contact us</a>
+            <a href="/info/returns">Returns and refunds</a>
+        </div>
+        <div>
+            <h2>Shop with us</h2>
+            <a href="/">All products</a>
+            <a href="/?in_stock=1">In-stock products</a>
+            <a href="/cart">Your cart</a>
+            <a href="/wishlist">Your wishlist</a>
+        </div>
+        <div>
+            <h2>Your account</h2>
+            {% if is_signed_in %}
+            <a href="/account">Account overview</a>
+            <a href="/orders">Your orders</a>
+            <a href="/profile">Profile and password</a>
+            <a href="/logout">Sign out</a>
+            {% else %}
+            <a href="/login">Sign in</a>
+            <a href="/register">Create account</a>
+            <a href="/forgot-password">Reset password</a>
+            {% endif %}
+        </div>
+        <div>
+            <h2>Policies</h2>
+            <a href="/info/shipping">Shipping information</a>
+            <a href="/info/returns">Returns policy</a>
+            <a href="/info/privacy">Privacy notice</a>
+            <a href="/info/terms">Terms of service</a>
+        </div>
+    </div>
+    <div class="shop-footer-bottom">
+        <a class="brand" href="/">
+            <span class="brand-mark">
+                <svg class="icon-20" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                    </path>
+                </svg>
+            </span>
+            <span class="brand-title">{{ store_name }}</span>
+        </a>
+        <p>&copy; {{ store_name }}. Professional chemicals, straightforward ordering.</p>
+        <p>Support: <a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+    </div>
+</footer>

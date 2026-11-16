@@ -1,30 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Profile Settings - ChemStore Pro{% endblock %}
+{% block title %}Profile settings - {{ store_name }}{% endblock %}
 
 {% block body %}
-<header class="app-header">
-    <a class="brand" href="/">
-        <span class="brand-mark">
-            <svg class="icon-20" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
-                </path>
-            </svg>
-        </span>
-        <span class="min-w-0">
-            <span class="brand-title">ChemStore Pro</span>
-            <span class="brand-subtitle hidden sm:block">Profile settings</span>
-        </span>
-    </a>
-    <div class="header-actions">
-        {% include "_theme_toggle.html" %}
-        <a href="/" class="btn btn-ghost btn-sm">&larr; Dashboard</a>
-        <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
-    </div>
-</header>
+<a id="top"></a>
+{% include "partials/store_header.html" %}
 
-<main class="profile-shell">
+<main class="store-shell shop-shell profile-shell">
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
     <div class="flash {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}">
@@ -47,7 +29,7 @@
                 <div class="profile-meta">
                     <h2 data-profile-username>{{ user.username }}</h2>
                     <p data-profile-email>{{ user.email }}</p>
-                    <span class="badge badge-role-{{ user.role|lower }} mt-2">{{ user.role }} account</span>
+                    <span class="badge badge-role-{{ user.role|lower }} mt-2">{{ 'Customer' if user.role == 'User' else user.role }} account</span>
                 </div>
             </div>
 
@@ -97,11 +79,14 @@
                 </div>
 
                 <div class="flex flex-col sm:flex-row justify-end gap-2 pt-5">
-                    <a href="/" class="btn btn-soft justify-center">Cancel</a>
+                    <a href="/account" class="btn btn-soft justify-center">Cancel</a>
                     <button type="submit" class="btn btn-primary justify-center">Save changes</button>
                 </div>
             </form>
+            <p class="summary-note">Need to change your email or password but cannot sign in? Use the <a href="/forgot-password">password reset</a> page.</p>
         </div>
     </section>
 </main>
+
+{% include "partials/store_footer.html" %}
 {% endblock %}

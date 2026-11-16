@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}{{ content.title }} - {{ store_name }}{% endblock %}
+
+{% block body %}
+<a id="top"></a>
+{% include "partials/store_header.html" %}
+
+<main class="store-shell shop-shell">
+    <nav class="store-breadcrumb shop-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <span>{{ content.title }}</span>
+    </nav>
+
+    <div class="shop-info-layout">
+        <aside class="shop-account-nav shop-info-nav">
+            <p class="shop-nav-label">Information</p>
+            <a href="/info/about" class="{% if page_key == 'about' %}is-active{% endif %}">About us</a>
+            <a href="/info/help" class="{% if page_key == 'help' %}is-active{% endif %}">Help centre</a>
+            <a href="/info/shipping" class="{% if page_key == 'shipping' %}is-active{% endif %}">Shipping</a>
+            <a href="/info/returns" class="{% if page_key == 'returns' %}is-active{% endif %}">Returns and refunds</a>
+            <a href="/info/privacy" class="{% if page_key == 'privacy' %}is-active{% endif %}">Privacy notice</a>
+            <a href="/info/terms" class="{% if page_key == 'terms' %}is-active{% endif %}">Terms of service</a>
+            <a href="/contact">Contact support</a>
+        </aside>
+
+        <article class="shop-info-content">
+            <p class="eyebrow">{{ content.eyebrow }}</p>
+            <h1>{{ content.title }}</h1>
+            <p class="shop-info-intro">{{ content.intro }}</p>
+            {% for heading, paragraphs in content.sections %}
+            <section>
+                <h2>{{ heading }}</h2>
+                {% for paragraph in paragraphs %}
+                <p>{{ paragraph }}</p>
+                {% endfor %}
+            </section>
+            {% endfor %}
+            <div class="shop-info-help">
+                <div>
+                    <h2>Still need help?</h2>
+                    <p>Our support team can answer product, order, and delivery questions.</p>
+                </div>
+                <a href="/contact" class="btn btn-primary">Contact us</a>
+            </div>
+        </article>
+    </div>
+</main>
+
+{% include "partials/store_footer.html" %}
+{% endblock %}

@@ -3,12 +3,16 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
 $stagingDir = Join-Path ([System.IO.Path]::GetTempPath()) ('chemstore-pa-' + [guid]::NewGuid().ToString('N'))
 
 New-Item -ItemType Directory -Path $stagingDir | Out-Null
 try {
-    foreach ($name in @('app.py', 'flask_app.py', 'wsgi.py', 'requirements.txt')) {
-        Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination $stagingDir
+    foreach ($name in @('app.py', 'flask_app.py', 'wsgi.py', 'requirements.txt', 'seed_database.py', 'seed_assets.py')) {
+        $sourcePath = Join-Path $PSScriptRoot $name
+        if (Test-Path -LiteralPath $sourcePath) {
+            Copy-Item -LiteralPath $sourcePath -Destination $stagingDir
+        }
     }
 
     $database = Join-Path $PSScriptRoot 'warehouse.db'

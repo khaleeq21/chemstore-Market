@@ -1,0 +1,53 @@
+{% extends "admin_base.html" %}
+
+{% block admin_title %}Reviews{% endblock %}
+
+{% block admin_body %}
+<div class="admin-page-head">
+    <div>
+        <p class="eyebrow">Moderation</p>
+        <h1>Product reviews</h1>
+        <p>Approve, hide, or remove customer reviews across the catalog.</p>
+    </div>
+</div>
+
+{% if reviews %}
+<div class="admin-review-grid">
+    {% for review in reviews %}
+    <article class="admin-card admin-review-card">
+        <div class="admin-review-head">
+            <div>
+                <a href="/product/{{ review.item_id }}#reviews" class="admin-review-product">{{ review.item_name }}</a>
+                <p class="admin-review-meta">by {{ review.username }} &middot; {{ review.created_at[:10] }}</p>
+            </div>
+            {% if review.approved %}
+            <span class="badge badge-success">Published</span>
+            {% else %}
+            <span class="badge badge-warning">Hidden</span>
+            {% endif %}
+        </div>
+        <div class="shop-stars admin-review-stars" aria-label="{{ review.rating }} out of 5 stars">
+            {% for star in range(1, 6) %}<span class="{% if star <= review.rating %}is-full{% endif %}">&#9733;</span>{% endfor %}
+        </div>
+        {% if review.title %}<h2>{{ review.title }}</h2>{% endif %}
+        <p class="admin-review-body">{{ review.body }}</p>
+        <div class="admin-review-actions">
+            <form action="/admin/reviews/{{ review.id }}/toggle" method="POST">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="btn btn-soft btn-sm">{% if review.approved %}Hide review{% else %}Publish review{% endif %}</button>
+            </form>
+            <form action="/admin/reviews/{{ review.id }}/delete" method="POST" data-confirm="Delete this review permanently?">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+{% else %}
+<div class="admin-card admin-empty">
+    <h2>No reviews yet</h2>
+    <p>Customer reviews will appear here for moderation.</p>
+</div>
+{% endif %}
+{% endblock %}

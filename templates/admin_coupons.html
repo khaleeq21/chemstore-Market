@@ -1,0 +1,111 @@
+{% extends "admin_base.html" %}
+
+{% block admin_title %}Coupons{% endblock %}
+
+{% block admin_body %}
+<div class="admin-page-head">
+    <div>
+        <p class="eyebrow">Promotions</p>
+        <h1>Coupons</h1>
+        <p>Create discount codes for the cart and checkout.</p>
+    </div>
+</div>
+
+{% if error %}
+<div class="flash flash-error"><span>{{ error }}</span></div>
+{% endif %}
+
+<div class="admin-coupon-layout">
+    <section class="admin-card">
+        <h2>Create a coupon</h2>
+        <form action="/admin/coupons" method="POST" class="admin-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+            <div class="form-grid">
+                <div class="form-field">
+                    <label class="field-label" for="couponCode">Code</label>
+                    <input type="text" id="couponCode" name="code" required placeholder="SAVE10" autocomplete="off">
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="discountType">Discount type</label>
+                    <select id="discountType" name="discount_type">
+                        <option value="percent">Percentage off</option>
+                        <option value="fixed">Fixed amount off</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="discountValue">Value</label>
+                    <input type="number" id="discountValue" name="value" min="0.01" step="0.01" required placeholder="10">
+                    <p class="field-hint">Use 10 for 10% or 10.00 for Rs. 10 off.</p>
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="minSubtotal">Minimum subtotal (PKR)</label>
+                    <input type="number" id="minSubtotal" name="min_subtotal" min="0" step="0.01" value="0">
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="maxUses">Maximum uses</label>
+                    <input type="number" id="maxUses" name="max_uses" min="0" step="1" value="0">
+                    <p class="field-hint">0 means unlimited.</p>
+                </div>
+                <div class="form-field">
+                    <label class="field-label" for="expiresAt">Expiry date</label>
+                    <input type="date" id="expiresAt" name="expires_at">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Create coupon</button>
+        </form>
+    </section>
+
+    <section class="admin-card">
+        <h2>Existing coupons</h2>
+        {% if coupons %}
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Discount</th>
+                        <th>Minimum</th>
+                        <th>Uses</th>
+                        <th>Expires</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for coupon in coupons %}
+                    <tr>
+                        <td><strong class="admin-coupon-code">{{ coupon.code }}</strong></td>
+                        <td>{% if coupon.discount_type == 'percent' %}{{ coupon.value|round(2) }}% off{% else %}${{ '%.2f'|format(coupon.value) }} off{% endif %}</td>
+                        <td>{{ coupon.min_subtotal_cents|money }}</td>
+                        <td>{{ coupon.used_count }}{% if coupon.max_uses %} / {{ coupon.max_uses }}{% endif %}</td>
+                        <td>{{ coupon.expires_at[:10] if coupon.expires_at else 'No expiry' }}</td>
+                        <td>
+                            {% if coupon.active %}
+                            <span class="badge badge-success">Active</span>
+                            {% else %}
+                            <span class="badge badge-warning">Paused</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="admin-row-actions">
+                                <form action="/admin/coupons/{{ coupon.id }}/toggle" method="POST">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                                    <button type="submit" class="btn btn-soft btn-sm">{% if coupon.active %}Pause{% else %}Activate{% endif %}</button>
+                                </form>
+                                <form action="/admin/coupons/{{ coupon.id }}/delete" method="POST" data-confirm="Delete coupon {{ coupon.code }}?">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="admin-empty-inline">No coupons have been created yet.</div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <meta name="theme-color" content="#070b14">
-    <title>{% block title %}ChemStore Pro{% endblock %}</title>
+    <title>{% block title %}{{ store_name }}{% endblock %}</title>
     <script>
         (function () {
             try {
@@ -40,7 +40,7 @@
             }
         }
     </script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=asset_version) }}">
     {% block head %}{% endblock %}
 </head>
 <body class="app-body font-sans antialiased">
@@ -51,7 +51,7 @@
 
     <div id="toastRoot" class="toast-root" aria-live="polite" aria-atomic="true"></div>
 
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <script src="{{ url_for('static', filename='app.js', v=asset_version) }}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

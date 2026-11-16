@@ -13,7 +13,7 @@
     </td>
     <td data-label="Email" class="cell-muted">{{ u.email }}</td>
     <td data-label="Username" class="cell-strong">{{ u.username }}</td>
-    <td data-label="Role"><span class="badge badge-role-{{ u.role|lower }}">{{ u.role }}</span></td>
+    <td data-label="Role"><span class="badge badge-role-{{ u.role|lower }}">{{ 'Customer' if u.role == 'User' else u.role }}</span></td>
     <td data-label="Status">
         {% if u.approved %}
         <span class="badge badge-success">Active</span>
@@ -39,3 +39,4 @@
     <td colspan="{{ 7 if privileged else 6 }}" class="empty-state stack-empty">No members found.</td>
 </tr>
 {% endfor %}
+

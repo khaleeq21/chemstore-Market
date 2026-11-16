@@ -529,6 +529,13 @@
                 closeModal('useModal');
                 form.reset();
             }
+            if (form.id === 'restockForm') {
+                closeModal('restockModal');
+                form.reset();
+            }
+            if (form.id === 'editProductForm') {
+                closeModal('editProductModal');
+            }
             await refreshDashboard({ silent: true });
         } catch (error) {
             showToast('Network error. Please try again.', 'error');
@@ -539,12 +546,72 @@
     });
 
     document.addEventListener('click', function (event) {
+        const editButton = event.target.closest('.edit-product-btn');
+        if (editButton) {
+            const form = document.getElementById('editProductForm');
+            if (!form) {
+                return;
+            }
+            form.action = '/product/' + editButton.dataset.id + '/edit';
+            const fields = {
+                name: editButton.dataset.name || '',
+                category: editButton.dataset.category || '',
+                price: editButton.dataset.price || '',
+                description: editButton.dataset.description || '',
+                image_url: editButton.dataset.imageUrl || ''
+            };
+            Object.keys(fields).forEach(function (name) {
+                const field = form.querySelector('[name="' + name + '"]');
+                if (field) {
+                    field.value = fields[name];
+                }
+            });
+            const activeField = form.querySelector('[name="active"]');
+            if (activeField) {
+                activeField.checked = String(editButton.dataset.active) !== '0';
+            }
+            const featuredField = form.querySelector('[name="featured"]');
+            if (featuredField) {
+                featuredField.checked = String(editButton.dataset.featured) === '1';
+            }
+            const imageFileField = form.querySelector('[name="image_file"]');
+            if (imageFileField) {
+                imageFileField.value = '';
+            }
+            openModal('editProductModal');
+            return;
+        }
+
+        const restockButton = event.target.closest('.restock-btn');
+        if (restockButton) {
+            const name = document.getElementById('restockItemName');
+            const form = document.getElementById('restockForm');
+            const unit = restockButton.dataset.unit || 'L';
+            if (name) {
+                name.textContent = restockButton.dataset.name + ' · ' + restockButton.dataset.quantity + ' ' + unit + ' in stock';
+            }
+            const unitLabel = document.getElementById('restockUnitLabel');
+            if (unitLabel) {
+                unitLabel.textContent = unit;
+            }
+            if (form) {
+                form.action = '/restock/' + restockButton.dataset.id;
+            }
+            openModal('restockModal');
+            return;
+        }
+
         const useButton = event.target.closest('.use-stock-btn');
         if (useButton) {
             const name = document.getElementById('useItemName');
             const form = document.getElementById('useForm');
+            const unit = useButton.dataset.unit || 'L';
             if (name) {
-                name.textContent = useButton.dataset.name + ' · ' + useButton.dataset.quantity + ' L available';
+                name.textContent = useButton.dataset.name + ' · ' + useButton.dataset.quantity + ' ' + unit + ' available';
+            }
+            const unitLabel = document.getElementById('useUnitLabel');
+            if (unitLabel) {
+                unitLabel.textContent = unit;
             }
             if (form) {
                 form.action = '/use/' + useButton.dataset.id;
@@ -562,6 +629,14 @@
         refreshDashboard: refreshDashboard,
         activateTab: activateTab
     };
+
+    // Initialize rating breakdown and chart bars
+    document.querySelectorAll('.rating-bar-fill').forEach(function (el) {
+        el.style.width = (el.getAttribute('data-percent') || 0) + '%';
+    });
+    document.querySelectorAll('.chart-bar[data-height]').forEach(function (el) {
+        el.style.height = (el.getAttribute('data-height') || 0) + '%';
+    });
 
     scheduleRefresh();
     refreshDashboard({ silent: true });

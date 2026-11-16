@@ -1,20 +1,40 @@
 {% for item in items %}
 <tr data-search="{{ (item.code ~ ' ' ~ item.name ~ ' ' ~ item.category)|lower }}">
     <td data-label="Code"><span class="cell-code">{{ item.code }}</span></td>
-    <td data-label="Chemical name" class="cell-strong">{{ item.name }}</td>
+    <td data-label="Product name" class="cell-strong">{{ item.name }}</td>
     <td data-label="Category" class="cell-muted">{{ item.category }}</td>
+    <td data-label="Price"><span class="cell-strong">{{ item.price|price }}</span> <span class="cell-muted">/ {{ item.unit }}</span></td>
     <td data-label="Current stock">
-        <span class="cell-strong">{{ item.quantity }} L</span>
-        {% if item.quantity <= 50 %}
+        <span class="cell-strong">{{ item.quantity|fmt_qty }} {{ item.unit }}</span>
+        {% if item.quantity|is_low_stock(item.unit) %}
         <span class="badge badge-warning ml-2">Low</span>
         {% endif %}
     </td>
-    <td data-label="Hazard level"><span class="badge badge-warning">Moderate</span></td>
-    <td data-label="Storage zone" class="cell-muted">Zone C - Solvents</td>
+    <td data-label="Store listing">
+        {% if item.active %}
+        <span class="badge badge-success">Live</span>
+        {% else %}
+        <span class="badge badge-warning">Hidden</span>
+        {% endif %}
+    </td>
+    <td data-label="Featured">
+        {% if item.featured %}
+        <span class="badge badge-accent">Featured</span>
+        {% else %}
+        <span class="cell-muted">Standard</span>
+        {% endif %}
+    </td>
     <td data-label="Actions" class="cell-actions">
-        <button type="button" class="btn btn-soft btn-sm">SDS</button>
+        {% if session['role'] in ['Developer', 'Admin'] %}
+        <button type="button" class="btn btn-soft btn-sm edit-product-btn"
+            data-id="{{ item.id }}" data-name="{{ item.name }}" data-category="{{ item.category }}"
+            data-price="{{ item.price }}" data-description="{{ item.description }}"
+            data-image-url="{{ item.image_url }}" data-active="{{ item.active }}" data-featured="{{ item.featured or 0 }}">Edit</button>
+        <button type="button" class="btn btn-soft btn-sm restock-btn"
+            data-id="{{ item.id }}" data-name="{{ item.name }}" data-quantity="{{ item.quantity|fmt_qty }}" data-unit="{{ item.unit }}">Add stock</button>
+        {% endif %}
         <button type="button" class="btn btn-primary btn-sm use-stock-btn"
-            data-id="{{ item.id }}" data-name="{{ item.name }}" data-quantity="{{ item.quantity }}">Use stock</button>
+            data-id="{{ item.id }}" data-name="{{ item.name }}" data-quantity="{{ item.quantity|fmt_qty }}" data-unit="{{ item.unit }}">Use stock</button>
         {% if session['role'] in ['Developer', 'Admin'] %}
         <form action="/delete/{{ item.id }}" method="POST" class="inline" data-ajax>
             <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
@@ -25,9 +45,10 @@
 </tr>
 {% else %}
 <tr>
-    <td colspan="7" class="empty-state stack-empty">No chemicals recorded yet. Add your first chemical to begin tracking inventory.</td>
+    <td colspan="8" class="empty-state stack-empty">No products recorded yet. Add your first product to begin selling.</td>
 </tr>
 {% endfor %}
 <tr id="inventoryNoResults" style="display: none;">
-    <td colspan="7" class="empty-state stack-empty">No chemicals match your search.</td>
+    <td colspan="8" class="empty-state stack-empty">No products match your search.</td>
 </tr>
+

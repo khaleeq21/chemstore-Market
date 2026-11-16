@@ -1,0 +1,153 @@
+{% set query_value = search_query|default(request.args.get('q', '')) %}
+{% set category_value = selected_category|default(request.args.get('category', '')) %}
+<div class="shop-topbar">
+    <div class="shop-topbar-inner">
+        <div class="flex items-center gap-3 text-xs">
+            <span class="inline-flex items-center gap-1.5 text-slate-300">
+                <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Deliver to: <strong class="text-white">Global Express</strong>
+            </span>
+            <span class="shop-topbar-divider"></span>
+            <span class="hidden md:inline text-slate-400">Chemical Marketplace</span>
+        </div>
+        <nav aria-label="Utility navigation" class="flex items-center gap-3">
+            <a href="/sell" class="text-amber-400 hover:text-amber-300 font-medium">Sell on ChemStore</a>
+            <a href="/info/shipping" class="hover:text-white">Shipping</a>
+            <a href="/info/help" class="hover:text-white">Help</a>
+            {% if is_signed_in %}
+            <a href="/orders" class="hover:text-white font-medium">Track Order</a>
+            {% else %}
+            <a href="/register" class="hover:text-white">Register</a>
+            {% endif %}
+        </nav>
+    </div>
+</div>
+
+<header class="store-header shop-header">
+    <div class="store-header-inner">
+        <a class="brand" href="/" aria-label="{{ store_name }} home">
+            <span class="brand-mark">
+                <svg class="icon-20" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                    </path>
+                </svg>
+            </span>
+            <span class="min-w-0">
+                <span class="brand-title">{{ store_name }}</span>
+                <span class="brand-subtitle hidden sm:block">Marketplace &amp; Auctions</span>
+            </span>
+        </a>
+
+        <form class="store-search shop-search" action="/" method="GET" role="search">
+            <label class="shop-search-category">
+                <span class="sr-only">Search department</span>
+                <select name="category">
+                    <option value="">All departments</option>
+                    {% for cat in categories|default([]) %}
+                    <option value="{{ cat.category }}" {% if category_value == cat.category %}selected{% endif %}>{{ cat.category }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <div class="shop-search-field">
+                <span class="shop-search-prefix">
+                    <svg class="icon-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m21 21-4.3-4.3M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
+                    </svg>
+                </span>
+                <input type="text" name="q" value="{{ query_value }}" placeholder="Search chemicals, lab glassware, instruments, safety gear..." aria-label="Search products">
+            </div>
+            <button type="submit" class="btn btn-primary shop-search-btn">Search</button>
+        </form>
+
+        <nav class="store-nav shop-header-actions" aria-label="Account navigation">
+            {% include "_theme_toggle.html" %}
+            <a href="/sell" class="shop-header-link hidden lg:flex">
+                <span class="shop-header-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </span>
+                <span><small>Sell on</small><strong>Marketplace</strong></span>
+            </a>
+            {% if is_staff %}
+            <a href="/admin" class="shop-header-link">
+                <span class="shop-header-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M4 12h16M4 18h10"></path>
+                    </svg>
+                </span>
+                <span><small>Manage</small><strong>Admin</strong></span>
+            </a>
+            {% endif %}
+            {% if is_signed_in %}
+            <a href="/account" class="shop-header-link">
+                <span class="shop-header-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"></path>
+                    </svg>
+                </span>
+                <span><small>Hello, {{ session['username'] }}</small><strong>Account</strong></span>
+            </a>
+            <a href="/orders" class="shop-header-link hidden sm:flex">
+                <span class="shop-header-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                </span>
+                <span><small>Returns &amp;</small><strong>Orders</strong></span>
+            </a>
+            <a href="/wishlist" class="shop-header-link shop-wishlist-link">
+                <span class="shop-header-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1a5.5 5.5 0 0 0 0-7.8Z"></path>
+                    </svg>
+                    <span class="shop-count-badge">{{ wishlist_count }}</span>
+                </span>
+                <span><small>Watchlist</small><strong>Saved</strong></span>
+            </a>
+            {% else %}
+            <a href="/login" class="shop-header-link">
+                <span class="shop-header-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"></path>
+                    </svg>
+                </span>
+                <span><small>Hello, sign in</small><strong>Account</strong></span>
+            </a>
+            {% endif %}
+            <a href="/cart" class="shop-cart-button" aria-label="View cart">
+                <span class="shop-cart-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13 5.4 5M7 13l-2 5h14M9 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm8 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"></path>
+                    </svg>
+                    <span class="shop-count-badge">{{ cart_count }}</span>
+                </span>
+                <span><small>Shopping</small><strong>Cart</strong></span>
+            </a>
+        </nav>
+    </div>
+
+    <nav class="shop-department-nav" aria-label="Store departments">
+        <a href="/" class="shop-department-all font-semibold">
+            <svg class="icon-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+            All Departments
+        </a>
+        <a href="/?format=auction" class="text-amber-400 font-semibold flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            Live Auctions
+        </a>
+        <a href="/?sort=featured" class="shop-deal-link">Today's Deals</a>
+        <a href="/?sort=rating">Top Rated</a>
+        <a href="/sell" class="hover:text-white">Sell</a>
+        {% for cat in categories|default([]) %}
+        <a href="/?category={{ cat.category|urlencode }}">{{ cat.category }} <span class="opacity-70 text-xs">({{ cat.total }})</span></a>
+        {% endfor %}
+        <a href="/?in_stock=1" class="hidden sm:inline">In Stock</a>
+        {% if is_signed_in %}
+        <a href="/orders">Your Orders</a>
+        {% endif %}
+    </nav>
+</header>

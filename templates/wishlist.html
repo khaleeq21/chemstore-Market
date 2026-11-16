@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Your wishlist - {{ store_name }}{% endblock %}
+
+{% block body %}
+<a id="top"></a>
+{% include "partials/store_header.html" %}
+
+<main class="store-shell shop-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="flash {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}">
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+    {% endwith %}
+
+    <nav class="store-breadcrumb shop-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <a href="/account">Your account</a>
+        <span>/</span>
+        <span>Your wishlist</span>
+    </nav>
+
+    <div class="shop-page-heading">
+        <div>
+            <p class="eyebrow">Saved for later</p>
+            <h1>Your wishlist</h1>
+        </div>
+        <a href="/" class="btn btn-ghost btn-sm">Continue shopping</a>
+    </div>
+
+    {% if items %}
+    <div class="product-grid shop-product-grid">
+        {% for item in items %}
+        {% set product = item %}
+        {% include "partials/product_card.html" %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="store-empty shop-empty">
+        <h3>Your wishlist is empty</h3>
+        <p>Save products while you browse and they will appear here.</p>
+        <a href="/" class="btn btn-primary">Browse products</a>
+    </div>
+    {% endif %}
+</main>
+
+{% include "partials/store_footer.html" %}
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - {{ store_name }}{% endblock %}
+
+{% block body %}
+<a id="top"></a>
+{% include "partials/store_header.html" %}
+
+<main class="store-shell shop-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="flash {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}">
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+    {% endwith %}
+
+    <nav class="store-breadcrumb shop-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <a href="/cart">Cart</a>
+        <span>/</span>
+        <span>Secure Checkout</span>
+    </nav>
+
+    <div class="shop-page-heading mb-6">
+        <div>
+            <p class="eyebrow">Guaranteed Checkout</p>
+            <h1 class="text-3xl font-extrabold text-white">Review &amp; Place Your Order</h1>
+        </div>
+        <a href="/cart" class="btn btn-ghost btn-sm">Back to Cart</a>
+    </div>
+
+    {% if error %}
+    <div class="flash flash-error mb-6"><span>{{ error }}</span></div>
+    {% endif %}
+
+    <div class="shop-checkout-layout">
+        <form action="/checkout" method="POST" class="shop-checkout-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+
+            <!-- Step 1: Contact Details -->
+            <section class="shop-checkout-step p-6 rounded-2xl bg-slate-900/60 border border-slate-800 mb-6">
+                <span class="shop-step-number">1</span>
+                <div class="shop-step-body">
+                    <h2 class="text-xl font-bold text-white mb-3">1. Contact &amp; Identification</h2>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label class="field-label" for="full_name">Full Name</label>
+                            <input type="text" id="full_name" name="full_name" value="{{ values.full_name }}" required autocomplete="name">
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label" for="email">Email Address</label>
+                            <input type="email" id="email" name="email" value="{{ values.email }}" required autocomplete="email">
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label" for="phone">Phone Number (For Carrier Tracking)</label>
+                            <input type="tel" id="phone" name="phone" value="{{ values.phone }}" autocomplete="tel" placeholder="+1 (555) 000-0000">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 2: Delivery Address -->
+            <section class="shop-checkout-step p-6 rounded-2xl bg-slate-900/60 border border-slate-800 mb-6">
+                <span class="shop-step-number">2</span>
+                <div class="shop-step-body">
+                    <h2 class="text-xl font-bold text-white mb-3">2. Shipping Address</h2>
+                    <div class="form-grid">
+                        <div class="form-field form-field-wide">
+                            <label class="field-label" for="address_line1">Street Address</label>
+                            <input type="text" id="address_line1" name="address_line1" value="{{ values.address_line1 }}" required autocomplete="address-line1" placeholder="Laboratory or facility street address">
+                        </div>
+                        <div class="form-field form-field-wide">
+                            <label class="field-label" for="address_line2">Apartment, Suite, Lab Unit (Optional)</label>
+                            <input type="text" id="address_line2" name="address_line2" value="{{ values.address_line2 }}" autocomplete="address-line2" placeholder="Suite 400, Lab Building B">
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label" for="city">City</label>
+                            <input type="text" id="city" name="city" value="{{ values.city }}" required autocomplete="address-level2">
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label" for="state">State / Region / Province</label>
+                            <input type="text" id="state" name="state" value="{{ values.state }}" autocomplete="address-level1">
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label" for="postal_code">Postal Code / ZIP</label>
+                            <input type="text" id="postal_code" name="postal_code" value="{{ values.postal_code }}" autocomplete="postal-code">
+                        </div>
+                        <div class="form-field">
+                            <label class="field-label" for="country">Country</label>
+                            <input type="text" id="country" name="country" value="{{ values.country or 'United States' }}" required autocomplete="country-name">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 3: Payment Method -->
+            <section class="shop-checkout-step p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+                <span class="shop-step-number">3</span>
+                <div class="shop-step-body">
+                    <h2 class="text-xl font-bold text-white mb-2">3. Payment Method</h2>
+                    <p class="text-xs text-slate-400 mb-4">Choose how you want to pay. All methods generate an official invoice and tracking number.</p>
+
+                    <div class="space-y-3 mb-6">
+                        <!-- Cash on Delivery / Laboratory Purchase Order (Only payment method) -->
+                        <label class="flex items-start gap-3 p-4 rounded-xl border border-slate-700 bg-slate-900/40 cursor-pointer hover:bg-slate-800/40 transition-colors">
+                            <input type="radio" name="payment_method" value="cod" checked class="mt-1">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <strong class="text-white text-sm">Cash on Delivery / Laboratory Purchase Order</strong>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-500/20 text-amber-400">Pay on Receipt</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mt-0.5">Order will be dispatched immediately. Pay by invoice, bank transfer, or on delivery.</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-full justify-center text-base font-bold py-3 shadow-lg shadow-sky-600/30">
+                        Complete Order &middot; {{ total_cents|money }}
+                    </button>
+                    <p class="text-[11px] text-slate-500 text-center mt-2">
+                        By placing your order, you agree to ChemStore's Terms of Sale and 30-Day Buyer Protection Guarantee.
+                    </p>
+                </div>
+            </section>
+        </form>
+
+        <!-- Right Side: Order Summary -->
+        <aside class="shop-order-summary shop-checkout-summary">
+            <h2 class="text-lg font-bold text-white mb-3">Order Summary</h2>
+            <div class="checkout-lines divide-y divide-slate-800">
+                {% for line in lines %}
+                <div class="checkout-line py-2 flex items-center justify-between">
+                    <div>
+                        <strong class="text-sm text-slate-200 block">{{ line.item.name }}</strong>
+                        <span class="text-xs text-slate-400">{{ line.quantity|fmt_qty }} {{ line.item.unit }} &times; {{ line.unit_price_cents|money }}</span>
+                    </div>
+                    <strong class="text-sm text-white">{{ line.line_total_cents|money }}</strong>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="pt-3 border-t border-slate-800 space-y-1.5 text-sm">
+                <div class="summary-row flex justify-between text-slate-300"><span>Items Subtotal</span><strong>{{ subtotal_cents|money }}</strong></div>
+                <div class="summary-row flex justify-between text-slate-300"><span>Pakistan Post Standard Shipping</span><strong>{% if shipping_cents %}{{ shipping_cents|money }}{% else %}Free{% endif %}</strong></div>
+                {% if discount_cents %}
+                <div class="summary-row summary-discount flex justify-between text-emerald-400"><span>Promo Discount ({{ coupon_code }})</span><strong>&minus;{{ discount_cents|money }}</strong></div>
+                {% endif %}
+                <div class="summary-row summary-total flex justify-between text-base font-bold text-white pt-2 border-t border-slate-800">
+                    <span>Order Total</span>
+                    <strong>{{ total_cents|money }}</strong>
+                </div>
+            </div>
+
+            <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800 text-xs text-slate-400 mt-4 space-y-1">
+                <div class="flex items-center gap-2 text-emerald-400 font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Estimated Arrival: In 3 Business Days
+                </div>
+                <p>Shipped via Pakistan Post with tracking notification sent to your email.</p>
+            </div>
+
+            <div class="shop-summary-trust grid grid-cols-3 gap-2 text-center text-[10px] text-slate-400 mt-4 pt-3 border-t border-slate-800">
+                <span>Encrypted 256-Bit</span>
+                <span>Live Stock Check</span>
+                <span>Printable Invoice</span>
+            </div>
+        </aside>
+    </div>
+</main>
+
+{% include "partials/store_footer.html" %}
+{% endblock %}

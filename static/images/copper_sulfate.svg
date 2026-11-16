@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg_cuso4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="24" fill="url(#bg_cuso4)"/>
+  <circle cx="200" cy="200" r="140" fill="#2563eb" opacity="0.08"/>
+  <rect x="135" y="110" width="130" height="200" rx="14" fill="#1e293b" stroke="#2563eb" stroke-width="3"/>
+  <rect x="165" y="75" width="70" height="35" rx="4" fill="#3b82f6"/>
+  <rect x="150" y="160" width="100" height="120" rx="4" fill="#f8fafc" stroke="#2563eb" stroke-width="2"/>
+  <text x="200" y="185" font-family="sans-serif" font-size="12" font-weight="800" fill="#1d4ed8" text-anchor="middle">COPPER(II)</text>
+  <text x="200" y="202" font-family="sans-serif" font-size="11" font-weight="800" fill="#1e293b" text-anchor="middle">SULFATE</text>
+  <text x="200" y="222" font-family="sans-serif" font-size="9" fill="#475569" text-anchor="middle">CuSO4 &middot; 5H2O</text>
+  <text x="200" y="240" font-family="sans-serif" font-size="10" font-weight="bold" fill="#2563eb" text-anchor="middle">99% Blue Crystals</text>
+</svg>

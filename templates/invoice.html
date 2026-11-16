@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #{{ order.id }} - {{ store_name }}</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Libre+Barcode+128&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        .barcode {
+            font-family: 'Libre Barcode 128', cursive;
+            font-size: 42px;
+            line-height: 1;
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .invoice-box {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="py-8 px-4">
+    <div class="no-print max-w-4xl mx-auto mb-6 flex items-center justify-between">
+        <a href="/orders/{{ order.id }}" class="text-sm font-semibold text-sky-600 hover:underline">&larr; Back to
+            Order</a>
+        <button onclick="window.print()"
+            class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 px-5 rounded-lg shadow-md transition-colors text-sm flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                </path>
+            </svg>
+            Print Invoice
+        </button>
+    </div>
+
+    <div class="invoice-box max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow-xl border border-slate-200">
+        <!-- Top Invoice Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start pb-8 border-b border-slate-200 gap-6">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span
+                        class="w-8 h-8 rounded bg-sky-600 text-white flex items-center justify-center font-black text-lg">C</span>
+                    <span class="text-2xl font-black text-slate-900 tracking-tight">{{ store_name }}</span>
+                </div>
+                <p class="text-xs text-slate-500">Official Chemical Marketplace &amp; Surplus Store</p>
+                <p class="text-xs text-slate-500">{{ support_email }}</p>
+            </div>
+            <div class="text-left md:text-right">
+                <h1 class="text-2xl font-black uppercase text-slate-900 tracking-wider">TAX INVOICE</h1>
+                <div class="text-xs text-slate-600 mt-1">Invoice #: <strong>INV-{{ "%06d"|format(order.id) }}</strong>
+                </div>
+                <div class="text-xs text-slate-600">Order #: <strong>#{{ order.id }}</strong></div>
+                <div class="text-xs text-slate-600">Order Date: <strong>{{ order.created_at }}</strong></div>
+                <div class="barcode text-slate-800 mt-1">*CHEM{{ order.id }}*</div>
+            </div>
+        </div>
+
+        <!-- Addresses & Shipment Info -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 py-8 border-b border-slate-200 text-xs">
+            <div>
+                <span class="font-bold uppercase tracking-wider text-slate-400 block mb-2">Sold &amp; Dispatched
+                    By</span>
+                <strong class="text-sm text-slate-900 block font-semibold">{{ store_name }} Marketplace</strong>
+                <p class="text-slate-600 mt-1">Certified Chemical Supply Network<br>Logistics Hub #4, Global
+                    Port<br>Email: {{ support_email }}</p>
+            </div>
+            <div>
+                <span class="font-bold uppercase tracking-wider text-slate-400 block mb-2">Shipped &amp; Billed
+                    To</span>
+                <strong class="text-sm text-slate-900 block font-semibold">{{ order.full_name }}</strong>
+                <p class="text-slate-600 mt-1">
+                    {{ order.address_line1 }}<br>
+                    {% if order.address_line2 %}{{ order.address_line2 }}<br>{% endif %}
+                    {{ order.city }}{% if order.state %}, {{ order.state }}{% endif %} {{ order.postal_code }}<br>
+                    {{ order.country }}
+                </p>
+                {% if order.phone %}<p class="text-slate-600 mt-1">Phone: {{ order.phone }}</p>{% endif %}
+            </div>
+            <div>
+                <span class="font-bold uppercase tracking-wider text-slate-400 block mb-2">Fulfilment &amp;
+                    Payment</span>
+                <p class="text-slate-700">Payment: <strong class="uppercase font-semibold">{{ order.payment_method or
+                        'COD' }}</strong></p>
+                <p class="text-slate-700">Payment Status: <strong class="uppercase text-emerald-600 font-bold">{{
+                        order.payment_status }}</strong></p>
+                <p class="text-slate-700 mt-2">Carrier: <strong class="font-semibold">{{ order.carrier or
+                        'Pakistan Post' }}</strong></p>
+                {% if order.tracking_number %}
+                <p class="text-slate-700">Tracking Code: <strong class="font-mono text-slate-900">{{
+                        order.tracking_number }}</strong></p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <div class="py-6">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b-2 border-slate-200 text-slate-400 uppercase tracking-wider">
+                        <th class="py-3 font-bold">Item Description</th>
+                        <th class="py-3 font-bold text-center">Unit</th>
+                        <th class="py-3 font-bold text-right">Quantity</th>
+                        <th class="py-3 font-bold text-right">Unit Price</th>
+                        <th class="py-3 font-bold text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for line in items %}
+                    <tr>
+                        <td class="py-3.5 pr-4">
+                            <strong class="text-slate-900 font-semibold text-sm block">{{ line.name }}</strong>
+                            <span class="text-slate-400 text-[11px]">Lab Verified Chemical / Supply Item</span>
+                        </td>
+                        <td class="py-3.5 text-center text-slate-600">{{ line.unit }}</td>
+                        <td class="py-3.5 text-right font-semibold text-slate-800">{{ line.quantity|fmt_qty }}</td>
+                        <td class="py-3.5 text-right text-slate-600">{{ line.unit_price_cents|money }}</td>
+                        <td class="py-3.5 text-right font-bold text-slate-900">{{ line.line_total_cents|money }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totals Calculation -->
+        <div class="pt-4 border-t-2 border-slate-200 flex justify-end text-xs">
+            <div class="w-72 space-y-2">
+                <div class="flex justify-between text-slate-600">
+                    <span>Subtotal:</span>
+                    <strong class="text-slate-800 font-semibold">{{ order.subtotal_cents|money }}</strong>
+                </div>
+                <div class="flex justify-between text-slate-600">
+                    <span>Shipping &amp; Handling:</span>
+                    <strong class="text-slate-800 font-semibold">{% if order.shipping_cents %}{{
+                        order.shipping_cents|money }}{% else %}Free{% endif %}</strong>
+                </div>
+                {% if order.discount_cents %}
+                <div class="flex justify-between text-emerald-600 font-semibold">
+                    <span>Coupon ({{ order.coupon_code }}):</span>
+                    <strong>&minus;{{ order.discount_cents|money }}</strong>
+                </div>
+                {% endif %}
+                <div class="flex justify-between text-slate-600">
+                    <span>Estimated Tax (0%):</span>
+                    <strong class="text-slate-800 font-semibold">Rs. 0.00</strong>
+                </div>
+                <div class="flex justify-between text-base font-black text-slate-900 pt-3 border-t border-slate-200">
+                    <span>Grand Total:</span>
+                    <span class="text-sky-600">{{ order.total_cents|money }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer / Return Policy -->
+        <div class="mt-12 pt-6 border-t border-slate-200 text-center text-[11px] text-slate-400 space-y-1">
+            <p>Thank you for choosing {{ store_name }}. All products carry a 30-day Money Back Guarantee.</p>
+            <p>For questions regarding this shipment, please contact {{ support_email }} quoting Order #{{ order.id }}.
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

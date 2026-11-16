@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}{{ store_name }} - Chemicals & Laboratory Supplies{% endblock %}
+
+{% block body %}
+<a id="top"></a>
+{% include "partials/store_header.html" %}
+
+<main class="store-shell shop-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="flash {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}">
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+    {% endwith %}
+
+    <!-- Marketplace Hero Banner -->
+    <section class="shop-hero reveal rounded-2xl overflow-hidden border border-slate-800 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-6 md:p-10 mb-8 shadow-2xl relative">
+        <div class="shop-hero-copy max-w-2xl relative z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold mb-3">
+                <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                Official Chemical &amp; Lab Equipment Marketplace
+            </div>
+            <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
+                Buy It Now or Bid on Lab Surplus. Fast &amp; Guaranteed.
+            </h1>
+            <p class="text-slate-300 text-base md:text-lg mb-6 leading-relaxed">
+                Discover verified chemicals, certified reagents, borosilicate glassware, and precision instruments from trusted vendors. Checkout in seconds.
+            </p>
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="#catalog" class="btn btn-primary btn-lg px-6 py-3 font-semibold shadow-lg shadow-sky-600/30">
+                    Browse All Products
+                </a>
+                <a href="/?format=auction" class="btn btn-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold flex items-center gap-2 shadow-lg shadow-amber-600/20">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    Explore Live Auctions
+                </a>
+                <a href="/sell" class="btn btn-ghost btn-lg border border-slate-700 text-slate-200 hover:bg-slate-800">
+                    Sell on ChemStore
+                </a>
+            </div>
+            <div class="grid grid-cols-3 gap-4 pt-6 mt-6 border-t border-slate-800 text-xs text-slate-400">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>Instant Order Tracking</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>Money-Back Guarantee</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>Secure Checkout</span>
+                </div>
+            </div>
+        </div>
+
+        {% if featured %}
+        {% set hero = featured[0] %}
+        <div class="shop-hero-feature hidden lg:flex flex-col justify-between bg-slate-900/80 border border-slate-700/80 rounded-xl p-6 backdrop-blur-md relative z-10 max-w-sm">
+            <div class="flex items-center justify-between mb-3">
+                <span class="px-2.5 py-1 text-xs font-bold rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                    Spotlight Deal
+                </span>
+                <span class="text-xs text-slate-400 font-mono">{{ hero.code }}</span>
+            </div>
+            <a href="/product/{{ hero.id }}" class="shop-feature-media block my-2 aspect-square max-h-48 flex items-center justify-center p-2">
+                {% if hero.image_url %}
+                <img src="{{ hero.image_url }}" alt="{{ hero.name }}" class="max-h-full object-contain">
+                {% else %}
+                <span class="detail-placeholder">{{ hero.name[:1].upper() }}</span>
+                {% endif %}
+            </a>
+            <div>
+                <span class="text-xs text-sky-400 font-semibold uppercase">{{ hero.category }}</span>
+                <h3 class="font-bold text-white text-base line-clamp-2 my-1">
+                    <a href="/product/{{ hero.id }}">{{ hero.name }}</a>
+                </h3>
+                <div class="shop-feature-price text-xl font-bold text-white my-2">
+                    {{ hero.price|price }} <span class="text-xs text-slate-400 font-normal">/ {{ hero.unit }}</span>
+                </div>
+                <a href="/product/{{ hero.id }}" class="btn btn-primary w-full justify-center text-sm py-2">
+                    View Product
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- eBay Signature Shelf: Live Auctions Ending Soon -->
+    {% if auctions_ending_soon and not search_query and not selected_category %}
+    <section class="mb-10 reveal">
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        Live Auctions Ending Soon
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 uppercase tracking-wider">eBay Style</span>
+                    </h2>
+                    <p class="text-xs text-slate-400">Bid on surplus reagents, laboratory instruments, and rare equipment before time expires.</p>
+                </div>
+            </div>
+            <a href="/?format=auction&sort=ending_soon" class="text-sm font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1">
+                See all auctions &rarr;
+            </a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {% for auction_item in auctions_ending_soon %}
+            {% set product = auction_item %}
+            {% include "partials/product_card.html" %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Departments Quick Grid -->
+    {% if categories %}
+    <section class="mb-10 reveal">
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <div>
+                <h2 class="text-xl font-bold text-white">Shop by Department</h2>
+                <p class="text-xs text-slate-400">Explore certified inventories across all specialized laboratory categories.</p>
+            </div>
+            <a href="#catalog" class="text-sm font-semibold text-sky-400 hover:text-sky-300">All departments &rarr;</a>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+            {% for cat in categories %}
+            <a href="/?category={{ cat.category|urlencode }}" class="p-4 rounded-xl bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col items-center text-center group">
+                <span class="w-10 h-10 rounded-full bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold text-base mb-2 group-hover:scale-110 transition-transform">
+                    {{ cat.category[:1] }}
+                </span>
+                <strong class="text-sm text-slate-200 group-hover:text-white font-medium leading-tight mb-1">{{ cat.category }}</strong>
+                <span class="text-xs text-slate-400">{{ cat.total }} item{% if cat.total != 1 %}s{% endif %}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Deals of the Day -->
+    {% if deals_of_the_day and not search_query and not selected_category %}
+    <section class="mb-10 reveal">
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        Today's Top Deals & Best Sellers
+                    </h2>
+                    <p class="text-xs text-slate-400">Popular items with instant pricing and fast shipping.</p>
+                </div>
+            </div>
+            <a href="/?sort=rating" class="text-sm font-semibold text-sky-400 hover:text-sky-300">Browse all top items &rarr;</a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {% for deal_item in deals_of_the_day %}
+            {% set product = deal_item %}
+            {% include "partials/product_card.html" %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Main Marketplace Catalog Layout with Amazon & eBay Advanced Filters -->
+    <section id="catalog" class="shop-catalog-layout reveal">
+        <!-- Advanced Filtering Sidebar -->
+        <aside class="shop-filters" aria-label="Marketplace filters">
+            <!-- Filter by Buying Format (eBay Style) -->
+            <div class="shop-filter-block">
+                <h2>Buying Format</h2>
+                <div class="flex flex-col gap-1.5 mt-2 text-sm">
+                    <a href="{{ url_for('store', q=search_query, category=selected_category, sort=sort, condition=condition, min_price=min_price, max_price=max_price) }}" 
+                       class="shop-filter-link {% if not listing_format or listing_format == 'all' %}is-active{% endif %}">
+                        All Listings
+                    </a>
+                    <a href="{{ url_for('store', q=search_query, category=selected_category, sort=sort, format='fixed', condition=condition, min_price=min_price, max_price=max_price) }}" 
+                       class="shop-filter-link {% if listing_format == 'fixed' %}is-active{% endif %} flex items-center justify-between">
+                        <span>Buy It Now</span>
+                        <span class="text-xs text-sky-400 font-medium">Amazon</span>
+                    </a>
+                    <a href="{{ url_for('store', q=search_query, category=selected_category, sort=sort, format='auction', condition=condition, min_price=min_price, max_price=max_price) }}" 
+                       class="shop-filter-link {% if listing_format == 'auction' %}is-active{% endif %} flex items-center justify-between">
+                        <span>Auction / Bidding</span>
+                        <span class="text-xs text-amber-400 font-medium">eBay</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filter by Condition (eBay & Amazon Style) -->
+            <div class="shop-filter-block">
+                <h2>Item Condition</h2>
+                <div class="flex flex-col gap-1.5 mt-2 text-sm">
+                    <a href="{{ url_for('store', q=search_query, category=selected_category, sort=sort, format=listing_format, min_price=min_price, max_price=max_price) }}" 
+                       class="shop-filter-link {% if not condition or condition == 'all' %}is-active{% endif %}">
+                        All Conditions
+                    </a>
+                    <a href="{{ url_for('store', q=search_query, category=selected_category, sort=sort, format=listing_format, condition='Brand New', min_price=min_price, max_price=max_price) }}" 
+                       class="shop-filter-link {% if condition == 'Brand New' %}is-active{% endif %}">
+                        Brand New
+                    </a>
+                    <a href="{{ url_for('store', q=search_query, category=selected_category, sort=sort, format=listing_format, condition='Refurbished', min_price=min_price, max_price=max_price) }}" 
+                       class="shop-filter-link {% if condition == 'Refurbished' %}is-active{% endif %}">
+                        Refurbished
+                    </a>
+                    <a href="{{ url_for('store', q=search_query, category=selected_category, sort=sort, format=listing_format, condition='Used', min_price=min_price, max_price=max_price) }}" 
+                       class="shop-filter-link {% if condition == 'Used' %}is-active{% endif %}">
+                        Used / Surplus
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filter by Departments -->
+            <div class="shop-filter-block">
+                <h2>Departments</h2>
+                <div class="flex flex-col gap-1 mt-2 text-sm">
+                    <a href="{{ url_for('store', q=search_query, format=listing_format, condition=condition, sort=sort, min_price=min_price, max_price=max_price) }}" 
+                       class="shop-filter-link {% if not selected_category %}is-active{% endif %}">
+                        All Departments <span>{{ pagination.total }}</span>
+                    </a>
+                    {% for cat in categories %}
+                    <a href="{{ url_for('store', q=search_query, category=cat.category, format=listing_format, condition=condition, sort=sort, min_price=min_price, max_price=max_price) }}" 
+                       class="shop-filter-link {% if selected_category == cat.category %}is-active{% endif %}">
+                        {{ cat.category }} <span>{{ cat.total }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Refine Form: Price, Customer Rating & Stock -->
+            <form action="/" method="GET" class="shop-filter-block shop-filter-form">
+                {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+                {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                {% if listing_format and listing_format != 'all' %}<input type="hidden" name="format" value="{{ listing_format }}">{% endif %}
+                {% if condition and condition != 'all' %}<input type="hidden" name="condition" value="{{ condition }}">{% endif %}
+
+                <h2>Refine Price &amp; Rating</h2>
+                <label class="field-label" for="filterSort">Sort By</label>
+                <select id="filterSort" name="sort">
+                    <option value="featured" {% if sort == 'featured' %}selected{% endif %}>Featured</option>
+                    <option value="ending_soon" {% if sort == 'ending_soon' %}selected{% endif %}>Auction Ending Soonest (eBay)</option>
+                    <option value="bids" {% if sort == 'bids' %}selected{% endif %}>Most Bids (eBay)</option>
+                    <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Highest Customer Rating</option>
+                    <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+                </select>
+
+                <p class="shop-filter-label">Price Range (PKR)</p>
+                <div class="shop-price-inputs">
+                    <input type="number" name="min_price" min="0" step="0.01" value="{{ min_price }}" placeholder="Min Rs." aria-label="Minimum price">
+                    <span>&ndash;</span>
+                    <input type="number" name="max_price" min="0" step="0.01" value="{{ max_price }}" placeholder="Max Rs." aria-label="Maximum price">
+                </div>
+
+                <p class="shop-filter-label">Customer Reviews</p>
+                <div class="flex flex-col gap-1.5 text-xs text-slate-300">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="rating" value="4" {% if rating == '4' %}checked{% endif %}>
+                        <span class="text-amber-400">&#9733;&#9733;&#9733;&#9733;&#9734;</span> &amp; Up
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="rating" value="3" {% if rating == '3' %}checked{% endif %}>
+                        <span class="text-amber-400">&#9733;&#9733;&#9733;&#9734;&#9734;</span> &amp; Up
+                    </label>
+                </div>
+
+                <label class="shop-checkbox mt-2">
+                    <input type="checkbox" name="in_stock" value="1" {% if in_stock == '1' %}checked{% endif %}>
+                    In Stock Only
+                </label>
+
+                <button type="submit" class="btn btn-primary w-full justify-center mt-3">Apply Filters</button>
+                <a href="/" class="btn btn-ghost w-full justify-center text-xs">Reset All Filters</a>
+            </form>
+        </aside>
+
+        <!-- Search Results Grid & Header -->
+        <div class="shop-results">
+            <div class="shop-results-head">
+                <div>
+                    <p class="eyebrow">Marketplace Catalog</p>
+                    <h1 class="shop-results-title text-2xl font-bold text-white">
+                        {% if search_query %}Results for &ldquo;{{ search_query }}&rdquo;
+                        {% elif selected_category %}{{ selected_category }}
+                        {% elif listing_format == 'auction' %}Live Auctions &amp; Bidding
+                        {% elif listing_format == 'fixed' %}Buy It Now Items
+                        {% else %}All Products &amp; Listings{% endif %}
+                    </h1>
+                    <p class="shop-results-count text-xs text-slate-400">
+                        {% if pagination.total %}
+                        Showing {{ pagination.start }}&ndash;{{ pagination.end }} of {{ pagination.total }} product{% if pagination.total != 1 %}s{% endif %}
+                        {% else %}
+                        No products matched your filters
+                        {% endif %}
+                    </p>
+                </div>
+
+                <form action="/" method="GET" class="shop-sort-form">
+                    {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+                    {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+                    {% if listing_format and listing_format != 'all' %}<input type="hidden" name="format" value="{{ listing_format }}">{% endif %}
+                    {% if condition and condition != 'all' %}<input type="hidden" name="condition" value="{{ condition }}">{% endif %}
+                    {% if in_stock %}<input type="hidden" name="in_stock" value="{{ in_stock }}">{% endif %}
+                    {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
+                    {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
+
+                    <label for="sortTop">Sort by:</label>
+                    <select id="sortTop" name="sort" onchange="this.form.submit()">
+                        <option value="featured" {% if sort == 'featured' %}selected{% endif %}>Featured</option>
+                        <option value="ending_soon" {% if sort == 'ending_soon' %}selected{% endif %}>Auction: Ending Soonest</option>
+                        <option value="bids" {% if sort == 'bids' %}selected{% endif %}>Auction: Most Bids</option>
+                        <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Customer Rating</option>
+                        <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+                    </select>
+                </form>
+            </div>
+
+            {% if items %}
+            <div class="product-grid shop-product-grid">
+                {% for item in items %}
+                {% set product = item %}
+                {% include "partials/product_card.html" %}
+                {% endfor %}
+            </div>
+
+            {% if pagination.pages > 1 %}
+            <nav class="shop-pagination" aria-label="Catalog pages">
+                {% if pagination.has_prev %}
+                <a href="{{ url_for('store', q=search_query, category=selected_category, sort=sort, format=listing_format, condition=condition, in_stock=in_stock, min_price=min_price, max_price=max_price, page=pagination.page - 1) }}" class="shop-page-link">Previous</a>
+                {% endif %}
+                {% for number in range(1, pagination.pages + 1) %}
+                <a href="{{ url_for('store', q=search_query, category=selected_category, sort=sort, format=listing_format, condition=condition, in_stock=in_stock, min_price=min_price, max_price=max_price, page=number) }}" class="shop-page-link {% if number == pagination.page %}is-active{% endif %}">{{ number }}</a>
+                {% endfor %}
+                {% if pagination.has_next %}
+                <a href="{{ url_for('store', q=search_query, category=selected_category, sort=sort, format=listing_format, condition=condition, in_stock=in_stock, min_price=min_price, max_price=max_price, page=pagination.page + 1) }}" class="shop-page-link">Next</a>
+                {% endif %}
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="store-empty shop-empty p-12 text-center bg-slate-900/40 rounded-xl border border-slate-800">
+                <h3 class="text-lg font-bold text-white mb-2">No items found matching your filters</h3>
+                <p class="text-sm text-slate-400 mb-4">Try clearing some filters or searching for generic terms like "acetone", "beaker", or "scale".</p>
+                <a href="/" class="btn btn-primary btn-sm">Clear All Filters</a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</main>
+
+{% include "partials/store_footer.html" %}
+{% endblock %}

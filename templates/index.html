@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - ChemStore Pro{% endblock %}
+{% block title %}Dashboard - {{ store_name }}{% endblock %}
 
 {% block body %}
 <header class="app-header">
-    <a class="brand" href="/">
+    <a class="brand" href="/admin">
         <span class="brand-mark">
             <svg class="icon-20" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
@@ -13,8 +13,8 @@
             </svg>
         </span>
         <span class="min-w-0">
-            <span class="brand-title">ChemStore Pro</span>
-            <span class="brand-subtitle hidden sm:block">Chemical warehouse intelligence</span>
+            <span class="brand-title">{{ store_name }}</span>
+            <span class="brand-subtitle hidden sm:block">Store management</span>
         </span>
     </a>
     <div class="header-actions">
@@ -55,10 +55,10 @@
         <div class="hero-copy">
             <p class="eyebrow">
                 <span class="live-dot"></span>
-                Warehouse command center
+                Store command center
             </p>
-            <h1 class="hero-title">Everything in stock, in one place.</h1>
-            <p class="hero-text">Track chemical inventory, consumption, members, and approvals with a live view of your warehouse. <span id="dashboardUpdated">Updated just now</span></p>
+            <h1 class="hero-title">Products, orders, and stock in one place.</h1>
+            <p class="hero-text">Manage the catalog, live stock levels, customer orders, reviews, and promotions from one dashboard. <span id="dashboardUpdated">Updated just now</span></p>
         </div>
         <div class="hero-actions">
             {% if session['role'] in ['Developer', 'Admin'] %}
@@ -66,10 +66,17 @@
                 <svg class="icon-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 5v14M5 12h14"></path>
                 </svg>
-                Add chemical
+                Add product
             </button>
             {% endif %}
-            <button type="button" class="btn btn-ghost" data-tab="logs">View usage logs</button>
+            <a href="/admin/orders" class="btn btn-ghost">Orders</a>
+            <a href="/admin/customers" class="btn btn-ghost">Customers</a>
+            <a href="/admin/reviews" class="btn btn-ghost">Reviews</a>
+            <a href="/admin/coupons" class="btn btn-ghost">Coupons</a>
+            <a href="/admin/messages" class="btn btn-ghost">Messages</a>
+            <a href="/admin/settings" class="btn btn-ghost">Settings</a>
+            <a href="/" class="btn btn-ghost">View storefront</a>
+            <button type="button" class="btn btn-ghost" data-tab="logs">Stock activity</button>
             <button type="button" class="btn btn-ghost" data-tab="users">{% if session['role'] in ['Developer', 'Admin'] %}Manage members{% else %}View administrators{% endif %}</button>
         </div>
     </section>
@@ -85,7 +92,7 @@
                 <span class="stat-trend">Inventory</span>
             </div>
             <p class="stat-value" data-stat="chemicals">{{ stats.chemicals }}</p>
-            <p class="stat-label">Total chemicals</p>
+            <p class="stat-label">Total products</p>
         </article>
         <article class="stat-card reveal reveal-2" data-tone="amber">
             <div class="stat-top">
@@ -94,7 +101,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v4m0 4h.01M10.3 4.3 3.2 17a2 2 0 0 0 1.7 3h14.2a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0Z"></path>
                     </svg>
                 </span>
-                <span class="stat-trend">Threshold 50 L</span>
+                <span class="stat-trend">Unit-aware alerts</span>
             </div>
             <p class="stat-value" data-stat="low_stock">{{ stats.low_stock }}</p>
             <p class="stat-label">Low stock alerts</p>
@@ -109,7 +116,7 @@
                 <span class="stat-trend">Activity</span>
             </div>
             <p class="stat-value" data-stat="logs">{{ stats.logs }}</p>
-            <p class="stat-label">Usage logs</p>
+            <p class="stat-label">Stock movements</p>
         </article>
         <article class="stat-card reveal reveal-4" data-tone="emerald">
             <div class="stat-top">
@@ -126,24 +133,19 @@
     </section>
 
     <nav class="tab-bar reveal reveal-5" aria-label="Dashboard sections">
-        <button type="button" class="tab-btn active" data-tab="inventory" aria-selected="true">Chemical inventory</button>
-        <button type="button" class="tab-btn" data-tab="logs" aria-selected="false">Usage logs</button>
+        <button type="button" class="tab-btn active" data-tab="inventory" aria-selected="true">Product inventory</button>
+        <button type="button" class="tab-btn" data-tab="logs" aria-selected="false">Stock activity</button>
         <button type="button" class="tab-btn" data-tab="users" aria-selected="false">{% if session['role'] in ['Developer', 'Admin'] %}Authorized members{% else %}Administrators{% endif %}</button>
         {% if session['role'] == 'Developer' %}
         <button type="button" class="tab-btn" data-tab="dev-approvals" aria-selected="false">
             Pending admins <span class="tab-count" data-tab-count="pending_admins">{{ pending_admins|length }}</span>
         </button>
         {% endif %}
-        {% if session['role'] in ['Developer', 'Admin'] %}
-        <button type="button" class="tab-btn" data-tab="admin-approvals" aria-selected="false">
-            Pending users <span class="tab-count" data-tab-count="pending_users">{{ pending_users|length }}</span>
-        </button>
-        {% endif %}
     </nav>
 
     <section class="tab-content reveal" id="section-inventory">
         <div class="toolbar">
-            <form method="GET" action="/" class="search-wrap">
+            <form method="GET" action="/admin" class="search-wrap">
                 <span class="search-icon">
                     <svg class="icon-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m21 21-4.3-4.3M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
@@ -152,9 +154,9 @@
                 <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name, code, or category..." class="search-input" data-search-input autocomplete="off">
             </form>
             <div class="toolbar-actions">
-                <a href="/" class="btn btn-ghost btn-sm">Clear</a>
+                <a href="/admin" class="btn btn-ghost btn-sm">Clear</a>
                 {% if session['role'] in ['Developer', 'Admin'] %}
-                <button type="button" class="btn btn-primary btn-sm" data-open-modal="addModal">+ Add chemical</button>
+                <button type="button" class="btn btn-primary btn-sm" data-open-modal="addModal">+ Add product</button>
                 {% endif %}
             </div>
         </div>
@@ -164,11 +166,12 @@
                 <thead>
                     <tr>
                         <th>Code</th>
-                        <th>Chemical name</th>
+                        <th>Product name</th>
                         <th>Category</th>
+                        <th>Price</th>
                         <th>Current stock</th>
-                        <th>Hazard level</th>
-                        <th>Storage zone</th>
+                        <th>Store listing</th>
+                        <th>Featured</th>
                         <th class="text-right">Actions</th>
                     </tr>
                 </thead>
@@ -189,7 +192,7 @@
                 <thead>
                     <tr>
                         <th>Timestamp</th>
-                        <th>Chemical name</th>
+                        <th>Product name</th>
                         <th>Amount used</th>
                         <th>Purpose</th>
                         <th>Used by</th>
@@ -207,7 +210,7 @@
             <div class="table-card-head">
                 <div>
                     <h2 class="panel-title">{% if session['role'] in ['Developer', 'Admin'] %}All registered system members{% else %}System administrators{% endif %}</h2>
-                    <p class="panel-subtitle">{% if session['role'] in ['Developer', 'Admin'] %}Everyone with access to this warehouse{% else %}Contact an administrator for access requests{% endif %}</p>
+                    <p class="panel-subtitle">{% if session['role'] in ['Developer', 'Admin'] %}Everyone with access to this store{% else %}Contact an administrator for access requests{% endif %}</p>
                 </div>
             </div>
             <table class="data-table stack-table">
@@ -237,7 +240,7 @@
             <div class="table-card-head">
                 <div>
                     <h2 class="panel-title">Pending administrator requests</h2>
-                    <p class="panel-subtitle">Approve or reject new Admin accounts</p>
+                    <p class="panel-subtitle">Developer approval required for new Admin accounts</p>
                 </div>
                 <span class="badge badge-muted" data-pending-count="pending_admins">{{ pending_admins|length }} waiting</span>
             </div>
@@ -258,49 +261,22 @@
     </section>
     {% endif %}
 
-    {% if session['role'] in ['Developer', 'Admin'] %}
-    <section class="tab-content hidden" id="section-admin-approvals">
-        <div class="table-card">
-            <div class="table-card-head">
-                <div>
-                    <h2 class="panel-title">Pending user requests</h2>
-                    <p class="panel-subtitle">Approve or reject new User accounts</p>
-                </div>
-                <span class="badge badge-muted" data-pending-count="pending_users">{{ pending_users|length }} waiting</span>
-            </div>
-            <table class="data-table stack-table">
-                <thead>
-                    <tr>
-                        <th>No.</th>
-                        <th>Email</th>
-                        <th>Username</th>
-                        <th class="text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="pendingUsersBody">
-                    {% include "partials/pending_users_rows.html" %}
-                </tbody>
-            </table>
-        </div>
-    </section>
-    {% endif %}
-
     <section class="panel usage-pulse reveal" id="usagePulse">
         <div class="panel-header">
             <div>
                 <h2 class="panel-title">Consumption pulse</h2>
-                <p class="panel-subtitle">Chemical usage over the last 7 days</p>
+                <p class="panel-subtitle">Stock activity over the last 7 days</p>
             </div>
             <p class="activity-summary"><span id="activityTotal">{{ activity|sum(attribute='count') }}</span> <span>entries</span></p>
         </div>
         <div class="panel-body">
-            <div class="activity-chart" id="activityChart" aria-label="Seven day usage chart">
+            <div class="activity-chart" id="activityChart" aria-label="Seven day stock activity chart">
                 {% set max_activity = (activity|max(attribute='count')).count or 1 %}
                 {% for day in activity %}
                 <div class="chart-col">
                     <span class="chart-count">{{ day.count }}</span>
                     <div class="chart-track">
-                        <div class="chart-bar" style="height: {{ ((day.count / max_activity) * 100)|round|int }}%"></div>
+                        <div class="chart-bar" data-height="{{ ((day.count / max_activity) * 100)|round|int }}"></div>
                     </div>
                     <span class="chart-label">{{ day.label }}</span>
                 </div>
@@ -313,17 +289,17 @@
 <div class="modal" id="addModal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle" aria-hidden="true">
     <div class="modal-card">
         <div class="modal-head">
-            <h2 class="modal-title" id="addModalTitle">Add new chemical</h2>
+            <h2 class="modal-title" id="addModalTitle">Add new product</h2>
             <button type="button" class="modal-close" data-close-modal="addModal" aria-label="Close">&times;</button>
         </div>
-        <form action="/add" method="POST" class="space-y-3" data-ajax>
+        <form action="/add" method="POST" class="space-y-3" enctype="multipart/form-data" data-ajax>
             <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
             <div>
-                <label class="field-label" for="addCode">Chemical code</label>
+                <label class="field-label" for="addCode">Product code</label>
                 <input type="text" id="addCode" name="code" required placeholder="e.g. CHEM-005">
             </div>
             <div>
-                <label class="field-label" for="addName">Chemical name</label>
+                <label class="field-label" for="addName">Product name</label>
                 <input type="text" id="addName" name="name" required placeholder="e.g. Ethanol Absolute">
             </div>
             <div>
@@ -331,12 +307,109 @@
                 <input type="text" id="addCategory" name="category" required placeholder="e.g. Solvent">
             </div>
             <div>
-                <label class="field-label" for="addQuantity">Quantity (L)</label>
-                <input type="number" id="addQuantity" name="quantity" required min="0" placeholder="e.g. 200">
+                <label class="field-label" for="addQuantity">Quantity</label>
+                <input type="number" id="addQuantity" name="quantity" required min="0" step="any" placeholder="e.g. 200">
             </div>
+            <div>
+                <label class="field-label" for="addUnit">Unit</label>
+                <select id="addUnit" name="unit" required>
+                    {% for code, meta in units.items() %}
+                    <option value="{{ code }}" {% if code == 'L' %}selected{% endif %}>{{ meta.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="field-label" for="addPrice">Selling price (per unit, PKR)</label>
+                <input type="number" id="addPrice" name="price" required min="0" step="0.01" placeholder="e.g. 24.99">
+            </div>
+            <div>
+                <label class="field-label" for="addDescription">Description</label>
+                <textarea id="addDescription" name="description" rows="3" placeholder="Describe the product, pack size, grade, or usage notes."></textarea>
+            </div>
+            <div>
+                <label class="field-label" for="addImageUrl">Image URL (optional)</label>
+                <input type="url" id="addImageUrl" name="image_url" placeholder="https://example.com/product.jpg">
+            </div>
+            <div>
+                <label class="field-label" for="addImageFile">Or upload a product image</label>
+                <input type="file" id="addImageFile" name="image_file" accept="image/png,image/jpeg,image/gif,image/webp">
+            </div>
+            <label class="flex items-center gap-2 text-sm text-[color:var(--text-soft)]">
+                <input type="checkbox" name="featured" value="1">
+                Feature on the storefront
+            </label>
             <div class="modal-actions">
                 <button type="button" class="btn btn-soft" data-close-modal="addModal">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save chemical</button>
+                <button type="submit" class="btn btn-primary">Save product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal" id="editProductModal" role="dialog" aria-modal="true" aria-labelledby="editProductModalTitle" aria-hidden="true">
+    <div class="modal-card">
+        <div class="modal-head">
+            <h2 class="modal-title" id="editProductModalTitle">Edit product</h2>
+            <button type="button" class="modal-close" data-close-modal="editProductModal" aria-label="Close">&times;</button>
+        </div>
+        <form id="editProductForm" action="/product/0/edit" method="POST" class="space-y-3" enctype="multipart/form-data" data-ajax>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+            <div>
+                <label class="field-label" for="editName">Product name</label>
+                <input type="text" id="editName" name="name" required>
+            </div>
+            <div>
+                <label class="field-label" for="editCategory">Category</label>
+                <input type="text" id="editCategory" name="category" required>
+            </div>
+            <div>
+                <label class="field-label" for="editPrice">Selling price (per unit, PKR)</label>
+                <input type="number" id="editPrice" name="price" required min="0" step="0.01">
+            </div>
+            <div>
+                <label class="field-label" for="editDescription">Description</label>
+                <textarea id="editDescription" name="description" rows="3"></textarea>
+            </div>
+            <div>
+                <label class="field-label" for="editImageUrl">Image URL (optional)</label>
+                <input type="url" id="editImageUrl" name="image_url">
+            </div>
+            <div>
+                <label class="field-label" for="editImageFile">Replace product image</label>
+                <input type="file" id="editImageFile" name="image_file" accept="image/png,image/jpeg,image/gif,image/webp">
+            </div>
+            <label class="flex items-center gap-2 text-sm text-[color:var(--text-soft)]">
+                <input type="checkbox" name="featured" id="editFeatured" value="1">
+                Feature on the storefront
+            </label>
+            <label class="flex items-center gap-2 text-sm text-[color:var(--text-soft)]">
+                <input type="checkbox" name="active" id="editActive" value="1" checked>
+                Visible in the storefront
+            </label>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-soft" data-close-modal="editProductModal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal" id="restockModal" role="dialog" aria-modal="true" aria-labelledby="restockModalTitle" aria-hidden="true">
+    <div class="modal-card">
+        <div class="modal-head">
+            <h2 class="modal-title" id="restockModalTitle">Add stock</h2>
+            <button type="button" class="modal-close" data-close-modal="restockModal" aria-label="Close">&times;</button>
+        </div>
+        <form id="restockForm" action="/restock/0" method="POST" class="space-y-3" data-ajax>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+            <p id="restockItemName" class="text-accent text-sm font-semibold"></p>
+            <div>
+                <label class="field-label" for="restockAmount">Amount to add (<span id="restockUnitLabel">L</span>)</label>
+                <input type="number" id="restockAmount" name="amount_added" step="any" min="0.01" required placeholder="e.g. 80">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-soft" data-close-modal="restockModal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add to stock</button>
             </div>
         </form>
     </div>
@@ -345,19 +418,19 @@
 <div class="modal" id="useModal" role="dialog" aria-modal="true" aria-labelledby="useModalTitle" aria-hidden="true">
     <div class="modal-card">
         <div class="modal-head">
-            <h2 class="modal-title" id="useModalTitle">Log chemical usage</h2>
+            <h2 class="modal-title" id="useModalTitle">Log stock adjustment</h2>
             <button type="button" class="modal-close" data-close-modal="useModal" aria-label="Close">&times;</button>
         </div>
         <form id="useForm" action="/use/0" method="POST" class="space-y-3" data-ajax>
             <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
             <p id="useItemName" class="text-accent text-sm font-semibold"></p>
             <div>
-                <label class="field-label" for="amountUsed">Amount to use (L)</label>
+                <label class="field-label" for="amountUsed">Amount to use (<span id="useUnitLabel">L</span>)</label>
                 <input type="number" id="amountUsed" name="amount_used" step="any" min="0.01" required placeholder="Enter amount consumed">
             </div>
             <div>
-                <label class="field-label" for="usePurpose">Purpose / experiment</label>
-                <input type="text" id="usePurpose" name="purpose" required placeholder="e.g. Lab cleanup / Solution prep">
+                <label class="field-label" for="usePurpose">Purpose / note</label>
+                <input type="text" id="usePurpose" name="purpose" required placeholder="e.g. Customer order / Internal use">
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-soft" data-close-modal="useModal">Cancel</button>
@@ -367,3 +440,6 @@
     </div>
 </div>
 {% endblock %}
+
+
+

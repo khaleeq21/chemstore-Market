@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg_cnd" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="24" fill="url(#bg_cnd)"/>
+  <circle cx="200" cy="200" r="140" fill="#06b6d4" opacity="0.08"/>
+  <rect x="175" y="70" width="50" height="230" rx="10" fill="none" stroke="#38bdf8" stroke-width="3"/>
+  <line x1="200" y1="50" x2="200" y2="320" stroke="#0284c7" stroke-width="5"/>
+  <line x1="175" y1="120" x2="135" y2="110" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="225" y1="250" x2="265" y2="240" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+  <text x="200" y="360" font-family="sans-serif" font-size="14" font-weight="700" fill="#38bdf8" text-anchor="middle">LIEBIG CONDENSER 300mm</text>
+</svg>

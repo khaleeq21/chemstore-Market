@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Register - ChemStore Pro{% endblock %}
+{% block title %}Create account - {{ store_name }}{% endblock %}
 
 {% block body %}
 <main class="auth-shell">
@@ -10,22 +10,20 @@
                 <a class="brand" href="/">
                     <span class="brand-mark">
                         <svg class="icon-20" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
-                            </path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
                         </svg>
                     </span>
                     <span>
-                        <span class="brand-title">ChemStore Pro</span>
-                        <span class="brand-subtitle">Chemical warehouse intelligence</span>
+                        <span class="brand-title">{{ store_name }}</span>
+                        <span class="brand-subtitle">{{ store_tagline }}</span>
                     </span>
                 </a>
-                <h2>Request access to your warehouse workspace.</h2>
-                <p>New Admin and User accounts require approval. You will be able to sign in once an authorized member approves your request.</p>
+                <h2>Create your account and start shopping.</h2>
+                <p>Customer accounts are ready immediately. Admin requests are reviewed by a Developer before sign-in.</p>
                 <ul class="auth-points">
-                    <li><span class="auth-point">✓</span> Choose your account role</li>
-                    <li><span class="auth-point">✓</span> Secure password hashing</li>
-                    <li><span class="auth-point">✓</span> Admin approval before access</li>
+                    <li><span class="auth-point">01</span> Browse products and current availability</li>
+                    <li><span class="auth-point">02</span> Save products to your wishlist</li>
+                    <li><span class="auth-point">03</span> Track order and delivery status</li>
                 </ul>
             </div>
         </aside>
@@ -34,7 +32,7 @@
             <div class="auth-theme">{% include "_theme_toggle.html" %}</div>
             <div class="auth-card-head">
                 <h1>Create account</h1>
-                <p>Register for warehouse access. Approval is required.</p>
+                <p>Customers get instant access. Admin requests require Developer approval.</p>
             </div>
 
             {% if error %}
@@ -48,12 +46,13 @@
             <form action="/register" method="POST" class="space-y-4" data-ajax>
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
                 <div>
-                    <label class="field-label">Register as</label>
+                    <label class="field-label">Account type</label>
                     <div class="role-switch" data-role-switch data-target="roleInput">
-                        <button type="button" class="role-btn {% if prefill_role == 'Admin' %}is-active{% endif %}" data-role-value="Admin">Admin</button>
-                        <button type="button" class="role-btn {% if prefill_role != 'Admin' %}is-active{% endif %}" data-role-value="User">User</button>
+                        <button type="button" class="role-btn {% if prefill_role != 'Admin' %}is-active{% endif %}" data-role-value="User">Customer</button>
+                        <button type="button" class="role-btn {% if prefill_role == 'Admin' %}is-active{% endif %}" data-role-value="Admin">Admin request</button>
                     </div>
-                    <input type="hidden" name="role" id="roleInput" value="{{ prefill_role }}">
+                    <input type="hidden" name="role" id="roleInput" value="{{ prefill_role or 'User' }}">
+                    <p class="field-hint">Customer accounts are active immediately. Admin requests are reviewed by a Developer.</p>
                 </div>
                 <div>
                     <label class="field-label" for="email">Email address</label>
@@ -65,13 +64,14 @@
                 </div>
                 <div>
                     <label class="field-label" for="password">Password</label>
-                    <input type="password" id="password" name="password" required minlength="6" autocomplete="new-password" placeholder="Create a secure password">
+                    <input type="password" id="password" name="password" required minlength="6" autocomplete="new-password" placeholder="Create a secure password (6+ characters)">
                 </div>
-                <button type="submit" class="btn btn-primary w-full">Submit registration request</button>
+                <button type="submit" class="btn btn-primary w-full">Create account</button>
             </form>
             {% endif %}
 
-            <p class="auth-footer">Already approved? <a href="/login">Sign in</a></p>
+            <p class="auth-footer">Already have an account? <a href="/login">Sign in</a></p>
+            <a href="/" class="auth-back-link">&larr; Continue browsing the store</a>
         </section>
     </div>
 </main>

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping cart - {{ store_name }}{% endblock %}
+
+{% block body %}
+<a id="top"></a>
+{% include "partials/store_header.html" %}
+
+<main class="store-shell shop-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="flash {% if category == 'success' %}flash-success{% else %}flash-error{% endif %}">
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+    {% endwith %}
+
+    <nav class="store-breadcrumb shop-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <span>Shopping cart</span>
+    </nav>
+
+    <div class="shop-page-heading">
+        <div>
+            <p class="eyebrow">Your cart</p>
+            <h1>Shopping cart</h1>
+        </div>
+        <span class="shop-results-count">{{ lines|length }} item{% if lines|length != 1 %}s{% endif %}</span>
+    </div>
+
+    {% if lines %}
+    <div class="shop-cart-layout">
+        <section class="shop-cart-items">
+            <div class="shop-cart-head">
+                <span>Product</span>
+                <span>Price</span>
+                <span>Quantity</span>
+                <span>Total</span>
+            </div>
+            {% for line in lines %}
+            <article class="shop-cart-line">
+                <div class="shop-cart-product">
+                    <a class="shop-cart-media" href="/product/{{ line.item.id }}">
+                        {% if line.item.image_url %}
+                        <img src="{{ line.item.image_url }}" alt="{{ line.item.name }}">
+                        {% else %}
+                        <span class="product-placeholder">{{ line.item.name[:1].upper() }}</span>
+                        {% endif %}
+                    </a>
+                    <div>
+                        <p class="product-category">{{ line.item.category }}</p>
+                        <h2><a href="/product/{{ line.item.id }}">{{ line.item.name }}</a></h2>
+                        <p class="shop-cart-meta">{{ line.item.code }} &middot; {% if line.item.quantity > 0 %}In stock{% else %}Out of stock{% endif %}</p>
+                        <form action="/cart/remove/{{ line.item.id }}" method="POST" class="shop-cart-remove">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                            <button type="submit">Remove</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="shop-cart-price">{{ line.unit_price_cents|money }} <small>/ {{ line.item.unit }}</small></div>
+                <form action="/cart/update/{{ line.item.id }}" method="POST" class="shop-cart-quantity">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                    <label class="sr-only" for="cartQty{{ line.item.id }}">Quantity in {{ line.item.unit }}</label>
+                    <input type="number" id="cartQty{{ line.item.id }}" name="quantity" value="{{ line.quantity|fmt_qty }}" min="0.01" step="any">
+                    <button type="submit" class="btn btn-soft btn-sm">Update</button>
+                </form>
+                <div class="shop-cart-total">{{ line.line_total_cents|money }}</div>
+            </article>
+            {% endfor %}
+            <a href="/" class="shop-text-link shop-cart-continue">&larr; Continue shopping</a>
+        </section>
+
+        <aside class="shop-order-summary">
+            <h2>Order summary</h2>
+            <div class="summary-row"><span>Subtotal ({{ lines|length }} item{% if lines|length != 1 %}s{% endif %})</span><strong>{{ subtotal_cents|money }}</strong></div>
+            <div class="summary-row"><span>Shipping</span><strong>{% if shipping_cents %}{{ shipping_cents|money }}{% else %}Free{% endif %}</strong></div>
+            {% if discount_cents %}
+            <div class="summary-row summary-discount"><span>Coupon ({{ coupon_code }})</span><strong>&minus;{{ discount_cents|money }}</strong></div>
+            {% endif %}
+            <div class="summary-row summary-total"><span>Order total</span><strong>{{ total_cents|money }}</strong></div>
+
+            {% if coupon %}
+            <form action="/cart/coupon" method="POST" class="shop-coupon-form">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="action" value="remove">
+                <p><strong>{{ coupon.code }}</strong> applied. <button type="submit" class="shop-link-button">Remove</button></p>
+            </form>
+            {% else %}
+            <form action="/cart/coupon" method="POST" class="shop-coupon-form">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+                <label class="field-label" for="couponCode">Have a coupon?</label>
+                <div class="shop-coupon-input">
+                    <input type="text" id="couponCode" name="coupon_code" placeholder="Enter code">
+                    <button type="submit" class="btn btn-soft btn-sm">Apply</button>
+                </div>
+            </form>
+            {% endif %}
+
+            <a href="/checkout" class="btn btn-primary btn-lg w-full justify-center">Proceed to checkout</a>
+            <p class="summary-note">You will pay by Cash on Delivery when your order arrives.</p>
+            <div class="shop-summary-trust">
+                <span>Secure payment</span>
+                <span>Live stock</span>
+                <span>Order tracking</span>
+            </div>
+        </aside>
+    </div>
+    {% else %}
+    <div class="store-empty shop-empty">
+        <h3>Your cart is empty</h3>
+        <p>Browse the catalog and add products to get started.</p>
+        <a href="/" class="btn btn-primary">Start shopping</a>
+    </div>
+    {% endif %}
+</main>
+
+{% include "partials/store_footer.html" %}
+{% endblock %}
